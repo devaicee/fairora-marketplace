@@ -11,13 +11,15 @@ function App() {
         <div className="container">
           <div className="logo">
             <div className="logo-icon">
-              <img src="src/assets/images/icon-1.png" alt="Fairora" />
+              <img src="src/assets/icons/icon-1.png" alt="Fairora" />
             </div>
             <span>Fairora</span>
           </div>
           <nav className="nav">
             <a href="#trending-trades">Trades</a>
             <a href="#top-creators">Top Creators</a>
+            <a href="#browse-categories">Categories</a>
+            <a href="#discover-more">Discover</a>
             <a href="#how-it-works">How It Works</a>
           </nav>
           <button className="btn-primary">Sign Up</button>
@@ -54,7 +56,7 @@ function App() {
             <div className="hero-visual">
               <div className="floating-card digital-assets">
                 <div className="card-icon">
-                  <img src="src/assets/images/placeholder.jpg" alt="placeholder" />
+                  <img src="src/assets/images/placeholder.jpg" alt="Art" />
                 </div>
                 <div className="card-content">
                   <h4>Digital Assets</h4>
@@ -113,29 +115,33 @@ function App() {
       <section className="top-creators">
         <div className="container">
           <div className="section-header">
-            <h2>Top Creators</h2>
-            <p>Checkout Top Rated Creators On The ATN Marketplace</p>
+            <div>
+              <h2>Top Creators</h2>
+              <p>Checkout Top Rated Creators On The ATN Marketplace</p>
+            </div>
             <button className="btn-secondary">View Startups</button>
           </div>
           
           <div className="creators-grid">
             {[
-              { name: "RespitReal", rank: "1st", points: "PHP 100k", avatar: "👩" },
-              { name: "DigiLab", rank: "2nd", points: "PHP 85k", avatar: "👨" },
-              { name: "GravityOne", rank: "3rd", points: "PHP 75k", avatar: "👨‍💼" },
-              { name: "Juanito", rank: "4th", points: "PHP 65k", avatar: "👦" },
-              { name: "BlueWhale", rank: "5th", points: "PHP 60k", avatar: "👨‍🎨" },
-              { name: "Mr Fox", rank: "6th", points: "PHP 55k", avatar: "👴" },
-              { name: "Shroomy", rank: "7th", points: "PHP 50k", avatar: "🧑" },
-              { name: "Robotics", rank: "8th", points: "PHP 45k", avatar: "👩‍💻" },
-              { name: "RustyRobot", rank: "9th", points: "PHP 40k", avatar: "🤖" },
-              { name: "Animakid", rank: "10th", points: "PHP 38k", avatar: "👨‍🎨" },
-              { name: "Dotgu", rank: "11th", points: "PHP 35k", avatar: "👩‍🔬" },
-              { name: "Ghiblier", rank: "12th", points: "PHP 32k", avatar: "👨‍🚀" }
+              { name: "RespitReal", points: "PHP 100k", avatar: "ava-1.png" },
+              { name: "DigiLab", points: "PHP 85k", avatar: "ava-2.png" },
+              { name: "GravityOne", points: "PHP 75k", avatar: "ava-3.png" },
+              { name: "Juanito", points: "PHP 65k", avatar: "ava-4.png" },
+              { name: "BlueWhale", points: "PHP 60k", avatar: "ava-5.png" },
+              { name: "Mr Fox", points: "PHP 55k", avatar: "ava-6.png" },
+              { name: "Shroomy", points: "PHP 50k", avatar: "ava-7.png" },
+              { name: "Robotics", points: "PHP 45k", avatar: "ava-8.png" },
+              { name: "RustyRobot", points: "PHP 40k", avatar: "ava-9.png" },
+              { name: "Animakid", points: "PHP 38k", avatar: "ava-10.png" },
+              { name: "Dotgu", points: "PHP 35k", avatar: "ava-11.png" },
+              { name: "Ghiblier", points: "PHP 32k", avatar: "ava-12.png" }
             ].map((creator, index) => (
               <div key={index} className="creator-card">
                 <div className="creator-rank">{index + 1}</div>
-                <div className="creator-avatar">{creator.avatar}</div>
+                <div className="creator-avatar">
+                  <img src={`src/assets/icons/${creator.avatar}`} alt={creator.name} />
+                </div>
                 <div className="creator-info">
                   <h4>{creator.name}</h4>
                   <p className="creator-stats">Total Sales: {creator.points}</p>
@@ -146,50 +152,95 @@ function App() {
         </div>
       </section>
 
+
       {/* Browse Categories */}
       <section className="browse-categories">
         <div className="container">
           <h2>Browse Categories</h2>
           
           <div className="categories-grid">
-            <div className="category-card art">
-              <div className="category-icon">🎨</div>
-              <h3>Art</h3>
+            {[
+              { name: "Creative Assets", image: "/api/placeholder/60/60" },
+              { name: "Audio & Music", image: "/api/placeholder/60/60" },
+              { name: "Video & Animation", image: "/api/placeholder/60/60" },
+              { name: "Software & Code", image: "/api/placeholder/60/60" },
+              { name: "eBooks & Documents", image: "/api/placeholder/60/60" },
+              { name: "Educational Materials", image: "/api/placeholder/60/60" },
+              { name: "Printable Designs", image: "/api/placeholder/60/60" },
+            ].map((category, index) => (
+              <div key={index} className="category-card">
+                <div className="category-icon">
+                  <img src={category.image} alt={category.name} />
+                </div>
+                <h3>{category.name}</h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Discover More */}
+      <section className="discover-more">
+        <div className="container">
+          <div className="section-header">
+            <div>
+              <h2>Discover More</h2>
+              <p>Find Out How To Get Started</p>
             </div>
-            <div className="category-card collectibles">
-              <div className="category-icon">🖼️</div>
-              <h3>Collectibles</h3>
-            </div>
-            <div className="category-card music">
-              <div className="category-icon">🎵</div>
-              <h3>Music</h3>
-            </div>
-            <div className="category-card photography">
-              <div className="category-icon">📷</div>
-              <h3>Photography</h3>
-            </div>
-            <div className="category-card video">
-              <div className="category-icon">🎬</div>
-              <h3>Video</h3>
-            </div>
-            <div className="category-card utility">
-              <div className="category-icon">🔧</div>
-              <h3>Utility</h3>
-            </div>
-            <div className="category-card sport">
-              <div className="category-icon">⚽</div>
-              <h3>Sport</h3>
-            </div>
-            <div className="category-card virtual">
-              <div className="category-icon">🌍</div>
-              <h3>Virtual Worlds</h3>
-            </div>
+            <button className="btn-secondary">View All</button>
+          </div>
+          
+          <div className="discover-grid">
+            {[
+              {
+                title: "Distant Galaxy",
+                creator: "MoonDancer",
+                price: "1.63 ETH",
+                likes: "196",
+                image: "/api/placeholder/300/200"
+              },
+              {
+                title: "Life On Edena",
+                creator: "NebulaKid", 
+                price: "1.63 ETH",
+                likes: "196",
+                image: "/api/placeholder/300/200"
+              },
+              {
+                title: "AstroFiction",
+                creator: "Spaceone",
+                price: "1.63 ETH", 
+                likes: "196",
+                image: "/api/placeholder/300/200"
+              }
+            ].map((item, index) => (
+              <div key={index} className="discover-card">
+                <div className="discover-image">
+                  <img src={item.image} alt={item.title} />
+                </div>
+                <div className="discover-info">
+                  <h4>{item.title}</h4>
+                  <div className="discover-creator">
+                    <img src="/api/placeholder/24/24" alt={item.creator} />
+                    <span>{item.creator}</span>
+                  </div>
+                  <div className="discover-price">
+                    <span>Price</span>
+                    <strong>{item.price}</strong>
+                  </div>
+                  <div className="discover-likes">
+                    <span>Highest Bid</span>
+                    <strong>{item.likes} wETH</strong>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="how-it-works">
+      <section className="how-it-works" id="how-it-works">
         <div className="container">
           <h2>How It Works</h2>
           <p className="section-subtitle">Find Out How To Get Started</p>
@@ -197,15 +248,39 @@ function App() {
           <div className="steps-grid">
             <div className="step-card">
               <div className="step-visual">
-                <div className="step-icon">👛</div>
+                <div className="step-icon-wrapper">
+                  <div className="step-icon">
+                    <img src="/api/placeholder/120/120" alt="Setup Wallet" />
+                  </div>
+                  <div className="decorative-elements">
+                    <span className="deco-1">✦</span>
+                    <span className="deco-2">◦</span>
+                    <span className="deco-3">▽</span>
+                    <span className="deco-4">◦</span>
+                    <span className="deco-5">✦</span>
+                    <span className="deco-6">◦</span>
+                  </div>
+                </div>
               </div>
               <h3>Setup Your Wallet</h3>
-              <p>Set up your digital wallet. Keep your private keys stored securely. Create your favorite cards and list your items for sale.</p>
+              <p>Securely connect your Fairora wallet to store digital assets, manage trade items, and track your token-based transactions.</p>
             </div>
             
             <div className="step-card">
               <div className="step-visual">
-                <div className="step-icon">🔍</div>
+                <div className="step-icon-wrapper">
+                  <div className="step-icon">
+                    <img src="/api/placeholder/120/120" alt="Discover Trades" />
+                  </div>
+                  <div className="decorative-elements">
+                    <span className="deco-1">✦</span>
+                    <span className="deco-2">◦</span>
+                    <span className="deco-3">▽</span>
+                    <span className="deco-4">◦</span>
+                    <span className="deco-5">✦</span>
+                    <span className="deco-6">◦</span>
+                  </div>
+                </div>
               </div>
               <h3>Discover & Propose Trades</h3>
               <p>Browse trending trades, search by category, or filter by your interests.</p>
@@ -213,10 +288,22 @@ function App() {
             
             <div className="step-card">
               <div className="step-visual">
-                <div className="step-icon">🛒</div>
+                <div className="step-icon-wrapper">
+                  <div className="step-icon">
+                    <img src="/api/placeholder/120/120" alt="Complete Trade" />
+                  </div>
+                  <div className="decorative-elements">
+                    <span className="deco-1">✦</span>
+                    <span className="deco-2">◦</span>
+                    <span className="deco-3">▽</span>
+                    <span className="deco-4">◦</span>
+                    <span className="deco-5">✦</span>
+                    <span className="deco-6">◦</span>
+                  </div>
+                </div>
               </div>
               <h3>Complete The Trade</h3>
-              <p>Exchange item securely, and experience seamless flow with your trading partners. Trust equals trade to build community trust.</p>
+              <p>Confirm the trade terms, exchange items securely, and track completion through your wallet. Both parties can rate the trade to build community trust.</p>
             </div>
           </div>
         </div>

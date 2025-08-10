@@ -69,42 +69,75 @@ function App() {
       </section>
 
       {/* Trending Trades */}
-      <section className="trending-trades">
+      <section className="trending-trades" id="trending-trades">
         <div className="container">
           <h2>Trending Trades</h2>
           <p className="section-subtitle">Checkout Our Weekly Updated Trending Trades.</p>
           
           <div className="trades-grid">
             <div className="trade-card creative">
-              <div className="trade-visual">
-                <div className="trade-icon">💻</div>
+              <div className="trade-main-visual">
+                <img src="src/assets/images/img-1.jpg" alt="Creative Services" />
+              </div>
+              <div className="trade-thumbnails">
+                <div className="thumb-item">
+                  <img src="src/assets/images/img-2.jpg" alt="Design" />
+                </div>
+                <div className="thumb-item">
+                  <img src="src/assets/images/img-3.jpg" alt="UI/UX" />
+                </div>
+                <div className="thumb-count">1025+</div>
               </div>
               <div className="trade-info">
-                <div className="trade-badge">PHP</div>
                 <h3>Creative Services</h3>
-                <p>⚡ 87pts</p>
+                <div className="creator-info1">
+                  <img src="src/assets/icons/ava-6.png" alt="MrFox" className="creator-avatar" />
+                  <span>MrFox</span>
+                </div>
               </div>
             </div>
             
             <div className="trade-card knowledge">
-              <div className="trade-visual">
-                <div className="trade-icon">📚</div>
+              <div className="trade-main-visual">
+                <img src="src/assets/images/img-4.jpg" alt="Knowledge Exchange" />
+              </div>
+              <div className="trade-thumbnails">
+                <div className="thumb-item">
+                  <img src="src/assets/images/img-5.jpg" alt="Coding" />
+                </div>
+                <div className="thumb-item">
+                  <img src="src/assets/images/img-6.jpg" alt="Learning" />
+                </div>
+                <div className="thumb-count blue">1025+</div>
               </div>
               <div className="trade-info">
-                <div className="trade-badge blue">1028+</div>
                 <h3>Knowledge & Skills Exchange</h3>
-                <p>⚡ Beginner</p>
+                <div className="creator-info1">
+                  <img src="src/assets/icons/ava-7.png" alt="Shroomie" className="creator-avatar" />
+                  <span>Shroomie</span>
+                </div>
               </div>
             </div>
             
             <div className="trade-card digital">
-              <div className="trade-visual">
-                <div className="trade-icon">🎯</div>
+              <div className="trade-main-visual">
+                <img src="src/assets/images/img-7.jpg" alt="Digital Assets" />
+              </div>
+              <div className="trade-thumbnails">
+                <div className="thumb-item">
+                  <img src="src/assets/images/img-8.jpg" alt="NFT" />
+                </div>
+                <div className="thumb-item">
+                  <img src="src/assets/images/img-9.jpg" alt="Digital Art" />
+                </div>
+                <div className="thumb-count pink">1025+</div>
               </div>
               <div className="trade-info">
-                <div className="trade-badge pink">1968+</div>
                 <h3>Digital Assets</h3>
-                <p>⚡ SecureObject</p>
+                <div className="creator-info1">
+                  <img src="src/assets/icons/ava-8.png" alt="BeKind2Robots" className="creator-avatar" />
+                  <span>BeKind2Robots</span>
+                </div>
               </div>
             </div>
           </div>
@@ -112,7 +145,7 @@ function App() {
       </section>
 
       {/* Top Creators */}
-      <section className="top-creators">
+      <section className="top-creators" id="top-creators">
         <div className="container">
           <div className="section-header">
             <div>
@@ -154,7 +187,7 @@ function App() {
 
 
       {/* Browse Categories */}
-      <section className="browse-categories">
+      <section className="browse-categories" id="browse-categories">
         <div className="container">
           <h2>Browse Categories</h2>
           
@@ -163,7 +196,7 @@ function App() {
               { name: "Creative Assets", image: "src/assets/images/cat-1.png" },
               { name: "Audio & Music", image: "src/assets/images/cat-2.png" },
               { name: "Video & Animation", image: "src/assets/images/cat-3.png" },
-              { name: "Software & Code", image: "src/assets/images/cat-4.png" },
+              { name: "Design & Code", image: "src/assets/images/cat-4.png" },
               { name: "eBooks & Documents", image: "src/assets/images/cat-5.png" },
               { name: "Educational Materials", image: "src/assets/images/cat-6.png" },
               { name: "Printable Designs", image: "src/assets/images/cat-7.png" },
@@ -180,7 +213,7 @@ function App() {
       </section>
 
       {/* Discover More */}
-      <section className="discover-more">
+      <section className="discover-more" id="discover-more">
         <div className="container">
           <div className="section-header">
             <div>
@@ -193,25 +226,19 @@ function App() {
           <div className="discover-grid">
             {[
               {
-                title: "Distant Galaxy",
+                title: "Tech Resources",
                 creator: "MoonDancer",
-                price: "1.63 ETH",
-                likes: "196",
-                image: "/api/placeholder/300/200"
+                image: "src/assets/images/dc1.png"
               },
               {
-                title: "Life On Edena",
+                title: "Learning Materials",
                 creator: "NebulaKid", 
-                price: "1.63 ETH",
-                likes: "196",
-                image: "/api/placeholder/300/200"
+                image: "src/assets/images/dc2.png"
               },
               {
-                title: "AstroFiction",
+                title: "Printables",
                 creator: "Spaceone",
-                price: "1.63 ETH", 
-                likes: "196",
-                image: "/api/placeholder/300/200"
+                image: "src/assets/images/dc3.png"
               }
             ].map((item, index) => (
               <div key={index} className="discover-card">
@@ -223,14 +250,6 @@ function App() {
                   <div className="discover-creator">
                     <img src="/api/placeholder/24/24" alt={item.creator} />
                     <span>{item.creator}</span>
-                  </div>
-                  <div className="discover-price">
-                    <span>Price</span>
-                    <strong>{item.price}</strong>
-                  </div>
-                  <div className="discover-likes">
-                    <span>Highest Bid</span>
-                    <strong>{item.likes} wETH</strong>
                   </div>
                 </div>
               </div>
@@ -250,7 +269,7 @@ function App() {
               <div className="step-visual">
                 <div className="step-icon-wrapper">
                   <div className="step-icon">
-                    <img src="/api/placeholder/120/120" alt="Setup Wallet" />
+                    <img src="src/assets/icons/hw1.png" alt="Setup Wallet" />
                   </div>
                   <div className="decorative-elements">
                     <span className="deco-1">✦</span>
@@ -270,7 +289,7 @@ function App() {
               <div className="step-visual">
                 <div className="step-icon-wrapper">
                   <div className="step-icon">
-                    <img src="/api/placeholder/120/120" alt="Discover Trades" />
+                    <img src="src/assets/icons/hw2.png" alt="Discover Trades" />
                   </div>
                   <div className="decorative-elements">
                     <span className="deco-1">✦</span>
@@ -290,7 +309,7 @@ function App() {
               <div className="step-visual">
                 <div className="step-icon-wrapper">
                   <div className="step-icon">
-                    <img src="/api/placeholder/120/120" alt="Complete Trade" />
+                    <img src="src/assets/icons/hw3.png" alt="Complete Trade" />
                   </div>
                   <div className="decorative-elements">
                     <span className="deco-1">✦</span>
@@ -334,7 +353,9 @@ function App() {
           <div className="footer-content">
             <div className="footer-brand">
               <div className="logo">
-                <div className="logo-icon">⚡</div>
+                <div className="logo-icon">
+              <img src="src/assets/icons/icon-1.png" alt="Fairora" />
+            </div>
                 <span>Fairora</span>
               </div>
               <p>A Revolutionary Platform for Fair and Transparent Trades</p>

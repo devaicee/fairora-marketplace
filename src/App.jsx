@@ -160,13 +160,13 @@ function App() {
           
           <div className="categories-grid">
             {[
-              { name: "Creative Assets", image: "/api/placeholder/60/60" },
-              { name: "Audio & Music", image: "/api/placeholder/60/60" },
-              { name: "Video & Animation", image: "/api/placeholder/60/60" },
-              { name: "Software & Code", image: "/api/placeholder/60/60" },
-              { name: "eBooks & Documents", image: "/api/placeholder/60/60" },
-              { name: "Educational Materials", image: "/api/placeholder/60/60" },
-              { name: "Printable Designs", image: "/api/placeholder/60/60" },
+              { name: "Creative Assets", image: "src/assets/images/cat-1.png" },
+              { name: "Audio & Music", image: "src/assets/images/cat-2.png" },
+              { name: "Video & Animation", image: "src/assets/images/cat-3.png" },
+              { name: "Software & Code", image: "src/assets/images/cat-4.png" },
+              { name: "eBooks & Documents", image: "src/assets/images/cat-5.png" },
+              { name: "Educational Materials", image: "src/assets/images/cat-6.png" },
+              { name: "Printable Designs", image: "src/assets/images/cat-7.png" },
             ].map((category, index) => (
               <div key={index} className="category-card">
                 <div className="category-icon">

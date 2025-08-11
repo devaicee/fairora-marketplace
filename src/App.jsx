@@ -7,7 +7,7 @@ function App() {
   return (
     <div className="App">
       {/* Header */}
-      <header className="header">
+<header className="header">
         <div className="container">
           <div className="logo">
             <div className="logo-icon">
@@ -22,7 +22,10 @@ function App() {
             <a href="#discover-more">Discover</a>
             <a href="#how-it-works">How It Works</a>
           </nav>
-          <button className="btn-primary">Sign Up</button>
+          <div className="auth-buttons">
+            <button className="btn-primary">Sign Up</button>
+            <button className="btn-primary-login">Login</button>
+          </div>
         </div>
       </header>
 
@@ -37,8 +40,8 @@ function App() {
                 Trading
               </h1>
               <p>Fairora Trading Network Is A Revolutionary Platform Where You Can Trade Virtual Resources, Services, And Knowledge—All Based On The Principle Of Equivalent Value.</p>
-              <button className="btn-get-started">
-                <span>⚡</span> Get Started
+              <button className="btn-primary">
+                 Get Started
               </button>
               
               <div className="stats">
@@ -227,17 +230,17 @@ function App() {
             {[
               {
                 title: "Tech Resources",
-                creator: "MoonDancer",
+                creator: "Animakid",
                 image: "src/assets/images/dc1.png"
               },
               {
                 title: "Learning Materials",
-                creator: "NebulaKid", 
+                creator: "Juanito", 
                 image: "src/assets/images/dc2.png"
               },
               {
                 title: "Printables",
-                creator: "Spaceone",
+                creator: "Dotgu",
                 image: "src/assets/images/dc3.png"
               }
             ].map((item, index) => (

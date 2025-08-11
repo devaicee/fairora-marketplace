@@ -33,7 +33,6 @@ To empower creators (especially those without financial access) by providing a p
 
 ### 💰 Credit Economy
 - **Earn credits** through:
-  - Uploading quality products
   - Making successful referrals
   - Active platform participation
 - **Spend credits** on digital products from other creators

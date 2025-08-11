@@ -3,7 +3,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBFgPamMPqc7E_k0JQ8T1VJE8HFlvajxTE",
@@ -19,4 +18,7 @@ const app = initializeApp(firebaseConfig);
 // ✅ Export the services so you can use them across your app
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
+
+// Debug: Log to verify Firebase is initialized
+console.log('Firebase app initialized:', app.name);
+console.log('Firebase project ID:', firebaseConfig.projectId);

@@ -407,6 +407,44 @@
   }
 }
 
+
+/* File Upload Placeholder Styling */
+.file-upload-placeholder {
+  padding: 2rem;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  text-align: center;
+  color: #9ca3af;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.file-upload-placeholder:hover {
+  border-color: rgba(168, 85, 247, 0.3);
+  background: rgba(168, 85, 247, 0.05);
+  color: #a855f7;
+  transform: translateY(-1px);
+}
+
+.file-upload-placeholder .upload-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.file-upload-placeholder .upload-text {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.file-upload-placeholder .upload-subtext {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
 @media (max-width: 480px) {
   .auth-container {
     padding: 0.5rem;

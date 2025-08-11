@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { auth, db } from '../firebase/firebaseConfig';
-import { doc, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import '../styles/auth.css';
 
@@ -13,8 +13,37 @@ const CreatorForm = () => {
     productPrice: ''
   });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Load existing form data if available
+  useEffect(() => {
+    const loadExistingData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const creatorFormDoc = await getDoc(doc(db, 'creator_forms', `creator_${user.uid}`));
+          if (creatorFormDoc.exists()) {
+            const existingData = creatorFormDoc.data();
+            setFormData({
+              productTitle: existingData.productTitle || '',
+              description: existingData.description || '',
+              category: existingData.category || '',
+              tags: Array.isArray(existingData.tags) ? existingData.tags.join(', ') : (existingData.tags || ''),
+              productPrice: existingData.productPrice ? existingData.productPrice.toString() : ''
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading existing form data:', error);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    loadExistingData();
+  }, []);
 
   const categories = [
     'Creative Assets',
@@ -38,7 +67,7 @@ const CreatorForm = () => {
   };
 
 
-  const handleSubmit = async (e, isDraft = false) => {
+  const handleSaveDraft = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -47,57 +76,105 @@ const CreatorForm = () => {
       const user = auth.currentUser;
       if (!user) throw new Error('User not authenticated');
 
-      const productData = {
+      const creatorData = {
         creatorId: user.uid,
         creatorEmail: user.email,
+        creatorName: user.displayName || user.email?.split('@')[0] || 'Unknown',
         productTitle: formData.productTitle,
         description: formData.description,
         category: formData.category,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        productPrice: parseFloat(formData.productPrice),
-        status: isDraft ? 'draft' : 'pending_review',
+        productPrice: parseFloat(formData.productPrice) || 0,
+        status: 'draft',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        note: 'File uploads will be added when Firebase Storage is available'
+        updatedAt: new Date().toISOString()
       };
 
-      const productId = `${user.uid}_${Date.now()}`;
-      await setDoc(doc(db, 'products', productId), productData);
+      const creatorFormId = `creator_${user.uid}`;
+      await setDoc(doc(db, 'creator_forms', creatorFormId), creatorData);
 
       await updateDoc(doc(db, 'users', user.uid), {
-        profileComplete: true,
-        lastProductId: productId
+        role: 'creator',
+        creatorStatus: 'draft',
+        lastUpdated: new Date().toISOString()
       });
 
-      if (isDraft) {
-        alert('Product saved as draft successfully!');
-      } else {
-        alert('Product profile completed! File uploads will be added later.');
-        navigate('/dashboard');
-      }
+      alert('Form saved as draft successfully!');
+      navigate('/dashboard');
     } catch (error) {
-      console.error('Creator form error:', error);
+      console.error('Save draft error:', error);
       setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSubmitForReview = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    if (!formData.productTitle || !formData.description || !formData.category || !formData.productPrice) {
+      setError('Please fill in all required fields');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('User not authenticated');
+
+      const creatorData = {
+        creatorId: user.uid,
+        creatorEmail: user.email,
+        creatorName: user.displayName || user.email?.split('@')[0] || 'Unknown',
+        productTitle: formData.productTitle,
+        description: formData.description,
+        category: formData.category,
+        tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        productPrice: parseFloat(formData.productPrice),
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        submittedAt: new Date().toISOString()
+      };
+
+      const creatorFormId = `creator_${user.uid}`;
+      await setDoc(doc(db, 'creator_forms', creatorFormId), creatorData);
+
+      await updateDoc(doc(db, 'users', user.uid), {
+        role: 'creator',
+        creatorStatus: 'pending',
+        lastUpdated: new Date().toISOString()
+      });
+
+      alert('Your creator application has been submitted for review!');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Submit for review error:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (initialLoading) {
+    return (
+      <div className="creator-form-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: '#ffffff', fontSize: '18px' }}>Loading form...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="creator-form-container">
-      <button 
-        className="btn-back-home"
-        onClick={() => navigate('/')}
-      >
-        ← Back to Home
-      </button>
       <div className="creator-form-card">
         <h2>Complete Your Creator Profile</h2>
         <p>Add your first product to get started</p>
 
         {error && <div className="error-message">{error}</div>}
 
-        <form onSubmit={(e) => handleSubmit(e, false)}>
+        <form onSubmit={handleSubmitForReview}>
           <div className="form-group">
             <label>Product Title *</label>
             <input
@@ -166,45 +243,30 @@ const CreatorForm = () => {
 
           <div className="form-group">
             <label>Product Images</label>
-            <div style={{ 
-              padding: '1rem', 
-              border: '2px dashed #e2e8f0', 
-              borderRadius: '8px', 
-              textAlign: 'center',
-              color: '#666',
-              backgroundColor: '#f8f9fa'
-            }}>
-              📁 File uploads will be available when Firebase Storage is enabled
+            <div className="file-upload-placeholder">
+              <span className="upload-icon">📁</span>
+              <div className="upload-text">Click to upload product images</div>
+              <div className="upload-subtext">File uploads will be available when Firebase Storage is enabled</div>
             </div>
             <small>Multiple images to showcase your product</small>
           </div>
 
           <div className="form-group">
             <label>Digital File</label>
-            <div style={{ 
-              padding: '1rem', 
-              border: '2px dashed #e2e8f0', 
-              borderRadius: '8px', 
-              textAlign: 'center',
-              color: '#666',
-              backgroundColor: '#f8f9fa'
-            }}>
-              📁 Main digital asset upload will be available later
+            <div className="file-upload-placeholder">
+              <span className="upload-icon">📎</span>
+              <div className="upload-text">Click to upload digital file</div>
+              <div className="upload-subtext">Main digital asset upload will be available later</div>
             </div>
             <small>The main digital asset/file for your product</small>
           </div>
 
           <div className="form-group">
             <label>Proof of Ownership (optional)</label>
-            <div style={{ 
-              padding: '1rem', 
-              border: '2px dashed #e2e8f0', 
-              borderRadius: '8px', 
-              textAlign: 'center',
-              color: '#666',
-              backgroundColor: '#f8f9fa'
-            }}>
-              📁 Verification document upload will be available later
+            <div className="file-upload-placeholder">
+              <span className="upload-icon">🔒</span>
+              <div className="upload-text">Click to upload verification documents</div>
+              <div className="upload-subtext">Verification document upload will be available later</div>
             </div>
             <small>Upload verification documents if needed</small>
           </div>
@@ -213,7 +275,7 @@ const CreatorForm = () => {
             <button
               type="button"
               className="btn-secondary"
-              onClick={(e) => handleSubmit(e, true)}
+              onClick={handleSaveDraft}
               disabled={loading}
             >
               {loading ? 'Saving...' : 'Save as Draft'}

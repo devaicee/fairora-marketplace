@@ -26,7 +26,7 @@ const Login = () => {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         
-        if (userData.userType === 'creator' && !userData.profileComplete) {
+        if (userData.userType === 'creator' && userData.creatorStatus === 'incomplete') {
           navigate('/creator-form');
         } else {
           navigate('/dashboard');

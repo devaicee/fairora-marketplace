@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth, db } from '../firebase/firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import '../styles/auth.css';
 
 const Signup = () => {
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,6 +24,11 @@ const Signup = () => {
       return;
     }
 
+    if (!displayName.trim()) {
+      setError('Please enter your display name');
+      return;
+    }
+
     if (!userType) {
       setError('Please select Creator or Buyer');
       return;
@@ -34,11 +40,20 @@ const Signup = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
+      // Update Firebase Auth profile with display name
+      await updateProfile(user, {
+        displayName: displayName.trim()
+      });
+
+      // Store user data in Firestore
       await setDoc(doc(db, 'users', user.uid), {
+        displayName: displayName.trim(),
         email: user.email,
-        userType: userType,
+        role: userType,
+        userType: userType, // Keep for backward compatibility
         createdAt: new Date().toISOString(),
-        profileComplete: userType === 'buyer' ? true : false
+        profileComplete: userType === 'buyer',
+        creatorStatus: userType === 'creator' ? 'incomplete' : null
       });
 
       if (userType === 'creator') {
@@ -77,7 +92,19 @@ const Signup = () => {
 
         <form onSubmit={handleSignup}>
           <div className="form-group">
-            <label>Email Address</label>
+            <label>Display Name *</label>
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              required
+              placeholder="Enter your display name"
+              maxLength={50}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Email Address *</label>
             <input
               type="email"
               value={email}
@@ -88,7 +115,7 @@ const Signup = () => {
           </div>
 
           <div className="form-group">
-            <label>Password</label>
+            <label>Password *</label>
             <input
               type="password"
               value={password}
@@ -100,7 +127,7 @@ const Signup = () => {
           </div>
 
           <div className="form-group">
-            <label>Confirm Password</label>
+            <label>Confirm Password *</label>
             <input
               type="password"
               value={confirmPassword}

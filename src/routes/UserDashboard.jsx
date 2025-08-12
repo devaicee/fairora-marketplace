@@ -240,20 +240,22 @@ const UserDashboard = () => {
   }
 
   return (
-    <div className="dashboard-container">
+    <div className="enhanced-dashboard">
       {/* Top Navigation */}
-      <header className="dashboard-header">
-        <div className="dashboard-nav-content">
-          <div className="dashboard-logo">
-            <div className="logo-icon">
-              <img src="src/assets/icons/icon-1.png" alt="Fairora" />
+      <header className="top-navigation">
+        <div className="nav-container">
+          <div className="nav-left">
+            <div className="logo">
+              <div className="logo-icon">
+                <img src="src/assets/icons/icon-1.png" alt="Fairora" />
+              </div>
+              <span>Fairora Dashboard</span>
             </div>
-            <span>Fairora Dashboard</span>
           </div>
           
-          <div className="dashboard-actions">
+          <div className="nav-right">
             <button 
-              className="btn-secondary dashboard-btn"
+              className="btn-secondary"
               onClick={() => navigate('/')}
             >
               ← Back to Home
@@ -271,12 +273,12 @@ const UserDashboard = () => {
       <div className="dashboard-layout">
         {/* Mobile Sidebar Overlay */}
         <div 
-          className={`sidebar-overlay ${sidebarOpen ? 'active' : ''}`}
+          className={`sidebar-backdrop ${sidebarOpen ? '' : 'sidebar-collapsed'}`}
           onClick={() => setSidebarOpen(false)}
         />
         
         {/* Sidebar */}
-        <aside className={`dashboard-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
+        <aside className={`sidebar ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
           <div className="sidebar-content">
             <div className="user-profile-section">
               <div className="user-avatar">
@@ -290,36 +292,36 @@ const UserDashboard = () => {
 
             <nav className="sidebar-nav">
               <button 
-                className={`nav-item ${activeSection === 'dashboard' ? 'active' : ''}`}
+                className={`sidebar-item ${activeSection === 'dashboard' ? 'active' : ''}`}
                 onClick={() => handleNavigate('dashboard')}
               >
-                <span className="nav-icon">📊</span>
-                Dashboard
+                <span className="sidebar-icon">📊</span>
+                <span className="sidebar-label">Dashboard</span>
               </button>
               
               <button 
-                className={`nav-item ${activeSection === 'profile' ? 'active' : ''}`}
+                className={`sidebar-item ${activeSection === 'profile' ? 'active' : ''}`}
                 onClick={() => handleNavigate('profile')}
               >
-                <span className="nav-icon">👤</span>
-                Profile
+                <span className="sidebar-icon">👤</span>
+                <span className="sidebar-label">Profile</span>
               </button>
               
               <button 
-                className={`nav-item ${activeSection === 'settings' ? 'active' : ''}`}
+                className={`sidebar-item ${activeSection === 'settings' ? 'active' : ''}`}
                 onClick={() => handleNavigate('settings')}
               >
-                <span className="nav-icon">⚙️</span>
-                Settings
+                <span className="sidebar-icon">⚙️</span>
+                <span className="sidebar-label">Settings</span>
               </button>
               
               {userProfile?.role === 'creator' && (
                 <button 
-                  className={`nav-item ${activeSection === 'creator-form' ? 'active' : ''}`}
+                  className={`sidebar-item ${activeSection === 'creator-form' ? 'active' : ''}`}
                   onClick={() => navigate('/creator-form')}
                 >
-                  <span className="nav-icon">🎨</span>
-                  Creator Form
+                  <span className="sidebar-icon">🎨</span>
+                  <span className="sidebar-label">Creator Form</span>
                   {getCreatorFormStatus()?.show && (
                     <span 
                       className="status-indicator"
@@ -332,19 +334,19 @@ const UserDashboard = () => {
               )}
               
               <button 
-                className={`nav-item ${activeSection === 'marketplace' ? 'active' : ''}`}
+                className={`sidebar-item ${activeSection === 'marketplace' ? 'active' : ''}`}
                 onClick={() => handleNavigate('marketplace')}
               >
-                <span className="nav-icon">🛍️</span>
-                Marketplace
+                <span className="sidebar-icon">🛍️</span>
+                <span className="sidebar-label">Marketplace</span>
               </button>
               
               <button 
-                className="nav-item logout-btn"
+                className="sidebar-item logout-btn"
                 onClick={handleLogout}
               >
-                <span className="nav-icon">🚪</span>
-                Logout
+                <span className="sidebar-icon">🚪</span>
+                <span className="sidebar-label">Logout</span>
               </button>
             </nav>
           </div>

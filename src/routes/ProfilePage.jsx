@@ -52,6 +52,21 @@ const ProfilePage = () => {
     return userProfile?.displayName || user?.email?.split('@')[0] || 'User';
   };
 
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <span
+          key={i}
+          className={`star ${i <= rating ? 'filled' : ''}`}
+        >
+          ⭐
+        </span>
+      );
+    }
+    return stars;
+  };
+
   if (loading) {
     return (
       <div className="profile-loading">
@@ -82,9 +97,16 @@ const ProfilePage = () => {
         <div className="profile-info">
           <h1 className="profile-name">{getDisplayName()}</h1>
           
-          {/* Stats as simple text line */}
-          <div className="profile-stats-text">
-            250k+ Trade Volume • 50+ Trades Completed
+          {/* Profile Stats */}
+          <div className="profile-stats">
+            <div className="stat-item">
+              <span className="stat-number">250k+</span>
+              <span className="stat-label">Trade Volume</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">50+</span>
+              <span className="stat-label">Trades Completed</span>
+            </div>
           </div>
 
           {/* Action Buttons */}
@@ -268,6 +290,95 @@ const ProfilePage = () => {
           )}
         </div>
       </div>
+      {/* Rating and Feedback Section */}
+      <div className="rating-feedback-section">
+        <div className="rating-feedback-container">
+          {/* Average Rating */}
+          <div className="average-rating">
+            <h3 className="section-title">Average Rating</h3>
+            <div className="rating-card">
+              <div className="overall-rating">
+                <div className="rating-number">4.</div>
+                <div className="rating-details">
+                  <div className="rating-count">50k</div>
+                  <div className="rating-label">Reviews</div>
+                </div>
+              </div>
+              <div className="rating-bars">
+                {[5, 4, 3, 2, 1].map(rating => (
+                  <div key={rating} className="rating-row">
+                    <span className="rating-value">{rating}</span>
+                    <div className="rating-bar">
+                      <div 
+                        className="rating-fill"
+                        style={{ 
+                          width: rating === 5 ? '80%' : 
+                                rating === 4 ? '60%' : 
+                                rating === 3 ? '40%' : 
+                                rating === 2 ? '20%' : '10%'
+                        }}
+                      ></div>
+                    </div>
+                    <span className="rating-percentage">
+                      {rating === 5 ? '80' : 
+                       rating === 4 ? '60' : 
+                       rating === 3 ? '40' : 
+                       rating === 2 ? '20' : '10'}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Customer Feedback */}
+          <div className="customer-feedback">
+            <h3 className="section-title">Customer Feedback</h3>
+            <div className="feedback-list">
+              <div className="feedback-item">
+                <div className="feedback-header">
+                  <div className="user-info">
+                    <div className="user-avatar">
+                      <img src="/api/placeholder/40/40" alt="Rachel Patel" />
+                    </div>
+                    <div className="user-details">
+                      <div className="user-name">Rachel Patel</div>
+                      <div className="feedback-date">October 12, 2024</div>
+                    </div>
+                  </div>
+                  <div className="feedback-rating">
+                    {renderStars(5)}
+                  </div>
+                </div>
+                <div className="feedback-content">
+                  Thank You For Your Ongoing Efforts In Trading. We've Reviewed Recent Activity And Would Like To Provide Constructive Feedback To Support Your Trading Journey.
+                </div>
+              </div>
+
+              <div className="feedback-item">
+                <div className="feedback-header">
+                  <div className="user-info">
+                    <div className="user-avatar">
+                      <img src="/api/placeholder/40/40" alt="Rachel Patel" />
+                    </div>
+                    <div className="user-details">
+                      <div className="user-name">Rachel Patel</div>
+                      <div className="feedback-date">October 12, 2024</div>
+                    </div>
+                  </div>
+                  <div className="feedback-rating">
+                    {renderStars(5)}
+                  </div>
+                </div>
+                <div className="feedback-content">
+                  Thank You For Your Ongoing Efforts In Trading. We've Reviewed Recent Activity And Would Like To Provide Constructive Feedback To Support Your Trading Journey.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };

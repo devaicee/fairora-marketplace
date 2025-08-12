@@ -195,17 +195,23 @@ const TopNavigation = ({ user, userProfile }) => {
               e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
             }}
           >
-            <div className="gradient-bg" style={{
-              display: 'flex',
-              height: '2rem',
-              width: '2rem',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '50%',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              color: 'white'
-            }}>
+            <div 
+              className="gradient-bg" 
+              style={{
+                display: 'flex',
+                height: '2rem',
+                width: '2rem',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                color: 'white',
+                cursor: 'pointer'
+              }}
+              onClick={() => navigate('/profile')}
+              title="Go to Profile"
+            >
               {getUserInitials()}
             </div>
             <span style={{ 

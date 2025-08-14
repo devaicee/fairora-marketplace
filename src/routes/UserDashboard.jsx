@@ -355,155 +355,147 @@ const UserDashboard = () => {
         {/* Main Content */}
         <main className="dashboard-main">
           {activeSection === 'dashboard' && (
-            <>
-              {/* Search Bar */}
-              <div className="search-section">
-                <div className="search-container">
-                  <input
-                    type="text"
-                    placeholder="Search products, categories..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
-                  />
-                </div>
-              </div>
-
-              {/* All Products Section */}
-              <section className="dashboard-section">
-                <div className="section-header">
-                  <div>
-                    <h2>All Products</h2>
-                    <p>Discover digital products from approved creators</p>
+            <div className="dashboard-content-wrapper">
+              {/* Main Content Area */}
+              <div className="main-content-area">
+                {/* Search Bar */}
+                <div className="search-section">
+                  <div className="search-container">
+                    <input
+                      type="text"
+                      placeholder="Search products, categories..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="search-input"
+                    />
                   </div>
-                  <button className="btn-secondary">View All</button>
                 </div>
-                
-                <div className="products-grid">
-                  {filteredProducts.length > 0 ? (
-                    filteredProducts.map((product) => (
-                      <div key={product.id} className="product-card">
-                        <div className="product-image">
-                          <img 
-                            src="src/assets/images/placeholder.jpg" 
-                            alt={product.productTitle}
-                            onError={(e) => {
-                              e.target.src = 'src/assets/images/img-1.jpg';
-                            }}
-                          />
-                          {product.isDemoProduct && (
-                            <div className="demo-badge">Demo</div>
-                          )}
-                        </div>
-                        <div className="product-info">
-                          <h4>{product.productTitle}</h4>
-                          <p className="product-creator">by {product.creatorEmail?.split('@')[0] || 'Unknown'}</p>
-                          <div className="product-category">{product.category}</div>
-                          <div className="product-footer">
-                            <span className="product-price">
-                              {product.productPrice ? `${product.productPrice} credits` : 'Free'}
-                            </span>
-                            <button className="btn-primary product-btn">View</button>
+
+                {/* All Products Section */}
+                <section className="dashboard-section">
+                  <div className="section-header">
+                    <div>
+                      <h2>All Products</h2>
+                      <p>Discover digital products from approved creators</p>
+                    </div>
+                    <button className="btn-secondary">View All</button>
+                  </div>
+                  
+                  <div className="products-grid">
+                    {filteredProducts.length > 0 ? (
+                      filteredProducts.map((product) => (
+                        <div key={product.id} className="product-card">
+                          <div className="product-image">
+                            <img 
+                              src="src/assets/images/placeholder.jpg" 
+                              alt={product.productTitle}
+                              onError={(e) => {
+                                e.target.src = 'src/assets/images/img-1.jpg';
+                              }}
+                            />
+                            {product.isDemoProduct && (
+                              <div className="demo-badge">Demo</div>
+                            )}
+                          </div>
+                          <div className="product-info">
+                            <h4>{product.productTitle}</h4>
+                            <p className="product-creator">by {product.creatorEmail?.split('@')[0] || 'Unknown'}</p>
+                            <div className="product-category">{product.category}</div>
+                            <div className="product-footer">
+                              <span className="product-price">
+                                {product.productPrice ? `${product.productPrice} credits` : 'Free'}
+                              </span>
+                              <button className="btn-primary product-btn">View</button>
+                            </div>
                           </div>
                         </div>
+                      ))
+                    ) : (
+                      <div className="no-products">
+                        <p>No products available yet. Check back soon!</p>
                       </div>
-                    ))
-                  ) : (
-                    <div className="no-products">
-                      <p>No products available yet. Check back soon!</p>
-                    </div>
-                  )}
-                </div>
-              </section>
-
-              {/* Trending Trades Section */}
-              <section className="dashboard-section">
-                <div className="section-header">
-                  <div>
-                    <h2>Trending Trades</h2>
-                    <p>Most popular trades this week</p>
+                    )}
                   </div>
-                  <button className="btn-secondary">View All</button>
-                </div>
-                
-                <div className="trending-grid">
-                  {trendingTrades.map((trade) => (
-                    <div key={trade.id} className={`trade-card ${trade.category}`}>
-                      <div className="trade-main-visual">
-                        <img src={trade.image} alt={trade.title} />
-                      </div>
-                      <div className="trade-info">
-                        <h3>{trade.title}</h3>
-                        <div className="creator-info1">
-                          <span>{trade.creator}</span>
+                </section>
+              </div>
+
+              {/* Right Sidebar */}
+              <aside className="dashboard-sidebar">
+                {/* Trending Trades Section */}
+                <section className="sidebar-section">
+                  <div className="sidebar-section-header">
+                    <h3>📈 Trending Trades</h3>
+                    <p>Most popular this week</p>
+                  </div>
+                  
+                  <div className="sidebar-items">
+                    {trendingTrades.map((trade, index) => (
+                      <div key={trade.id} className="sidebar-trade-item">
+                        <div className="trade-rank">#{index + 1}</div>
+                        <div className="trade-image">
+                          <img src={trade.image} alt={trade.title} />
+                        </div>
+                        <div className="trade-details">
+                          <h4>{trade.title}</h4>
+                          <p>by {trade.creator}</p>
                           <span className="trade-count">{trade.trades}+ trades</span>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              {/* Top Creators Section */}
-              <section className="dashboard-section">
-                <div className="section-header">
-                  <div>
-                    <h2>Top Creators</h2>
-                    <p>Leading creators by sales and trades</p>
+                    ))}
                   </div>
-                  <button className="btn-secondary">View Rankings</button>
-                </div>
-                
-                <div className="creators-grid">
-                  {topCreators.map((creator, index) => (
-                    <div key={index} className="creator-card">
-                      <div className="creator-rank">{index + 1}</div>
-                      <div className="creator-avatar">
-                        <img src={`src/assets/icons/${creator.avatar}`} alt={creator.name} />
-                      </div>
-                      <div className="creator-info">
-                        <h4>{creator.name}</h4>
-                        <p className="creator-stats">
-                          {creator.trades} trades • <strong>{creator.earnings} earned</strong>
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
+                  <button className="btn-secondary btn-full">View All Trades</button>
+                </section>
 
-              {/* Creator Forums Section */}
-              <section className="dashboard-section">
-                <div className="section-header">
-                  <div>
-                    <h2>Creator Forums</h2>
-                    <p>Latest discussions and community topics</p>
+                {/* Top Creators Section */}
+                <section className="sidebar-section">
+                  <div className="sidebar-section-header">
+                    <h3>🏆 Top Creators</h3>
+                    <p>Leading by sales and trades</p>
                   </div>
-                  <button className="btn-secondary">Join Discussion</button>
-                </div>
-                
-                <div className="forum-list">
-                  {forumTopics.map((topic) => (
-                    <div key={topic.id} className="forum-item">
-                      <div className="forum-content">
-                        <div className="forum-header">
+                  
+                  <div className="sidebar-items">
+                    {topCreators.map((creator, index) => (
+                      <div key={index} className="sidebar-creator-item">
+                        <div className="creator-rank">#{index + 1}</div>
+                        <div className="creator-avatar">
+                          <img src={`src/assets/icons/${creator.avatar}`} alt={creator.name} />
+                        </div>
+                        <div className="creator-details">
+                          <h4>{creator.name}</h4>
+                          <p>{creator.trades} trades</p>
+                          <span className="creator-earnings">{creator.earnings} earned</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button className="btn-secondary btn-full">View Rankings</button>
+                </section>
+
+                {/* Recent Discussions Section */}
+                <section className="sidebar-section">
+                  <div className="sidebar-section-header">
+                    <h3>💬 Recent Discussions</h3>
+                    <p>Latest community topics</p>
+                  </div>
+                  
+                  <div className="sidebar-items">
+                    {forumTopics.map((topic) => (
+                      <div key={topic.id} className="sidebar-forum-item">
+                        <div className="forum-content">
                           <h4>{topic.title}</h4>
+                          <div className="forum-meta">
+                            <span>by {topic.author}</span>
+                            <span className="forum-replies">{topic.replies} replies</span>
+                          </div>
                           <span className="forum-category">{topic.category}</span>
                         </div>
-                        <div className="forum-meta">
-                          <span>by {topic.author}</span>
-                          <span>•</span>
-                          <span>{topic.replies} replies</span>
-                          <span>•</span>
-                          <span>{topic.lastActivity}</span>
-                        </div>
                       </div>
-                      <button className="btn-secondary forum-btn">Reply</button>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            </>
+                    ))}
+                  </div>
+                  <button className="btn-secondary btn-full">Join Discussion</button>
+                </section>
+              </aside>
+            </div>
           )}
 
           {/* Other sections would go here */}

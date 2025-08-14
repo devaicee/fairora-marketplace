@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { auth, db } from '../firebase/firebaseConfig';
 import { useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import '../styles/profile.css';
 
@@ -9,6 +10,7 @@ const ProfilePage = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('trades');
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +37,7 @@ const ProfilePage = () => {
 
     return () => unsubscribe();
   }, [navigate]);
+
 
   const getUserInitials = () => {
     if (userProfile?.displayName) {
@@ -67,6 +70,28 @@ const ProfilePage = () => {
     return stars;
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
+  const getCreatorFormStatus = () => {
+    if (!userProfile || userProfile.role !== 'creator') return null;
+    
+    const statusMap = {
+      'incomplete': { text: 'Incomplete', color: '#ef4444', show: true },
+      'draft': { text: 'Draft', color: '#f59e0b', show: true },
+      'pending': { text: 'Under Review', color: '#3b82f6', show: true },
+      'approved': { text: 'Approved', color: '#10b981', show: false }
+    };
+    
+    return statusMap[userProfile.creatorStatus] || null;
+  };
+
   if (loading) {
     return (
       <div className="profile-loading">
@@ -77,39 +102,176 @@ const ProfilePage = () => {
 
   return (
     <div className="profile-page">
+      {/* Top Navigation Header */}
+      <header className="top-navigation">
+        <div className="nav-container">
+          <div className="nav-left">
+            <div className="logo">
+              <div className="logo-icon">
+                <img src="src/assets/icons/icon-1.png" alt="Fairora" />
+              </div>
+              <span>Fairora</span>
+            </div>
+          </div>
+          
+          {/* Navigation Menu */}
+          <nav className="nav-menu">
+            <button className="nav-item" onClick={() => navigate('/dashboard')}>
+              <span className="nav-icon">🏪</span>
+              <span>Marketplace</span>
+            </button>
+            <button className="nav-item" onClick={() => navigate('/dashboard/trending')}>
+              <span className="nav-icon">📈</span>
+              <span>Trending</span>
+            </button>
+            <button className="nav-item" onClick={() => navigate('/dashboard/rankings')}>
+              <span className="nav-icon">🏆</span>
+              <span>Rankings</span>
+            </button>
+            <button className="nav-item" onClick={() => navigate('/wallet')}>
+              <span className="nav-icon">💰</span>
+              <span>Wallet</span>
+            </button>
+            <button className="nav-item" onClick={() => navigate('/messages')}>
+              <span className="nav-icon">💬</span>
+              <span>Messages</span>
+            </button>
+          </nav>
+          
+          <div className="nav-right">
+            <div className="user-menu">
+              <div 
+                className="user-avatar-button"
+                onMouseEnter={() => setUserDropdownOpen(true)}
+                onMouseLeave={() => setUserDropdownOpen(false)}
+              >
+                <div className="user-avatar">
+                  {getUserInitials()}
+                </div>
+                <span className="user-name">{getDisplayName()}</span>
+                <span className="dropdown-arrow">▼</span>
+              </div>
+              
+              {userDropdownOpen && (
+                <div 
+                  className="user-dropdown"
+                  onMouseEnter={() => setUserDropdownOpen(true)}
+                  onMouseLeave={() => setUserDropdownOpen(false)}
+                >
+                  <div 
+                    className="dropdown-item"
+                    onClick={() => {
+                      navigate('/profile/edit');
+                      setUserDropdownOpen(false);
+                    }}
+                  >
+                    <span className="item-icon">✏️</span>
+                    Edit Profile
+                  </div>
+                  <div 
+                    className="dropdown-item"
+                    onClick={() => {
+                      navigate('/settings');
+                      setUserDropdownOpen(false);
+                    }}
+                  >
+                    <span className="item-icon">⚙️</span>
+                    Settings
+                  </div>
+                  <div className="dropdown-divider"></div>
+                  <div 
+                    className="dropdown-item logout-item"
+                    onClick={() => {
+                      handleLogout();
+                      setUserDropdownOpen(false);
+                    }}
+                  >
+                    <span className="item-icon">🚪</span>
+                    Logout
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Draft Banner */}
+      {getCreatorFormStatus()?.show && (
+        <div className="draft-banner">
+          <div className="banner-content">
+            <div className="banner-icon">⚠️</div>
+            <div className="banner-text">
+              <strong>Creator Form Status: {getCreatorFormStatus().text}</strong>
+              <span>Complete your creator form to start selling your digital products.</span>
+            </div>
+            <button 
+              className="banner-action"
+              onClick={() => navigate('/creator-form')}
+            >
+              Continue Setup
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Full Width Banner */}
       <div className="hero-banner">
         <div className="hero-gradient"></div>
       </div>
       
-      {/* Avatar positioned over banner */}
-      <div className="avatar-section">
-        <div className="profile-avatar">
-          <div className="gradient-bg avatar-circle">
-            {getUserInitials()}
-          </div>
-        </div>
-      </div>
-
       {/* Main Content Container */}
       <div className="profile-container">
-        {/* Profile Info */}
-        <div className="profile-info">
-          <h1 className="profile-name">{getDisplayName()}</h1>
-          
-          {/* Profile Stats */}
-          <div className="profile-stats">
-            <div className="stat-item">
-              <span className="stat-number">250k+</span>
-              <span className="stat-label">Trade Volume</span>
+        <div className="profile-content">
+          {/* Avatar positioned above profile name */}
+            <div className="profile-avatar">
+              <div className="gradient-bg avatar-circle">
+                {getUserInitials()}
+              </div>
             </div>
-            <div className="stat-item">
-              <span className="stat-number">50+</span>
-              <span className="stat-label">Trades Completed</span>
+          {/* Left Column - Profile Info */}
+          <div className="profile-info">
+            
+            <h1 className="profile-name">{getDisplayName()}</h1>
+            
+            {/* Profile Stats */}
+            <div className="profile-stats">
+              <div className="stat-item">
+                <span className="stat-number">250k+</span>
+                <span className="stat-label">Trade Volume</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-number">50+</span>
+                <span className="stat-label">Trades Completed</span>
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div className="profile-bio">
+              {userProfile?.bio || 'Digital creator passionate about crafting unique experiences and building meaningful connections through innovative design.'}
+            </div>
+
+            {/* Social Links */}
+            <div className="social-links">
+              <a href="#" className="social-link" title="Website">
+                <span className="social-icon">🌐</span>
+              </a>
+              <a href="#" className="social-link" title="Gaming">
+                <span className="social-icon">🎮</span>
+              </a>
+              <a href="#" className="social-link" title="YouTube">
+                <span className="social-icon">📺</span>
+              </a>
+              <a href="#" className="social-link" title="Twitter">
+                <span className="social-icon">🐦</span>
+              </a>
+              <a href="#" className="social-link" title="Instagram">
+                <span className="social-icon">📷</span>
+              </a>
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Right Column - Action Buttons */}
           <div className="profile-actions">
             <button className="btn-edit-profile">
               Edit Profile
@@ -117,33 +279,6 @@ const ProfilePage = () => {
             <button className="btn-add-listing">
               Add Listing
             </button>
-            <button className="btn-transaction-history">
-              Transaction History
-            </button>
-          </div>
-
-          {/* Bio */}
-          <div className="profile-bio">
-            {userProfile?.bio || 'Digital creator passionate about crafting unique experiences and building meaningful connections through innovative design.'}
-          </div>
-
-          {/* Social Links */}
-          <div className="social-links">
-            <a href="#" className="social-link" title="Website">
-              <span className="social-icon">🌐</span>
-            </a>
-            <a href="#" className="social-link" title="Gaming">
-              <span className="social-icon">🎮</span>
-            </a>
-            <a href="#" className="social-link" title="YouTube">
-              <span className="social-icon">📺</span>
-            </a>
-            <a href="#" className="social-link" title="Twitter">
-              <span className="social-icon">🐦</span>
-            </a>
-            <a href="#" className="social-link" title="Instagram">
-              <span className="social-icon">📷</span>
-            </a>
           </div>
         </div>
       </div>
@@ -201,16 +336,6 @@ const ProfilePage = () => {
                   </div>
                   <div className="card-content">
                     <p>Trades awaiting confirmation</p>
-                  </div>
-                </div>
-                
-                <div className="content-card">
-                  <div className="card-header">
-                    <h3>Recent Activity</h3>
-                    <span className="card-count">Last 7 days</span>
-                  </div>
-                  <div className="card-content">
-                    <p>Your recent trading activity and updates</p>
                   </div>
                 </div>
               </div>
@@ -376,7 +501,7 @@ const ProfilePage = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div>    
       </div>
 
     </div>

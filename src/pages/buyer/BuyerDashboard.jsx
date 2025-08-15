@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
-import { auth, db } from '../firebase/firebaseConfig';
+import { auth, db } from '../../firebase/firebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
-import { doc, getDoc, collection, getDocs, query, where, limit, runTransaction } from 'firebase/firestore';
-import { initializeUserProfile } from '../utils/userSetup';
-import '../App.css';
-import '../styles/dashboard.css';
+import { collection, getDocs, query, where, limit, runTransaction } from 'firebase/firestore';
+import { initializeUserProfile } from '../../utils/userSetup';
+import '../../App.css';
+import '../../styles/improved-dashboard.css';
 
-const ImprovedDashboard = () => {
+const BuyerDashboard = () => {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -30,6 +31,17 @@ const ImprovedDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownOpen && !event.target.closest('.profile-dropdown-wrapper')) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [dropdownOpen]);
+
+  useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (!currentUser) {
         navigate('/login');
@@ -39,10 +51,10 @@ const ImprovedDashboard = () => {
       setUser(currentUser);
       
       try {
-        // Get user profile
-        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-        if (userDoc.exists()) {
-          setUserProfile(userDoc.data());
+        // Get user profile and initialize buyer features
+        const userData = await initializeUserProfile(currentUser.uid);
+        if (userData) {
+          setUserProfile(userData);
         }
         
         // Load dashboard data
@@ -307,7 +319,7 @@ const ImprovedDashboard = () => {
               <div className="logo-icon">
                 <img src="src/assets/icons/icon-1.png" alt="Fairora" />
               </div>
-              <span>Fairora Dashboard</span>
+              <span>Fairora</span>
             </div>
           </div>
           
@@ -322,10 +334,64 @@ const ImprovedDashboard = () => {
           </div>
           
           <div className="dashboard-profile-menu">
-            <div className="profile-info">
-              <img src="src/assets/icons/ava-1.png" alt="Profile" className="profile-avatar" />
-              <span className="profile-name">{getDisplayName()}</span>
+            <div className="profile-dropdown-wrapper">
+              <button 
+                className="profile-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDropdownOpen(!dropdownOpen);
+                }}
+                onMouseEnter={() => setDropdownOpen(true)}
+              >
+                <img src="src/assets/icons/ava-1.png" alt="Profile" className="profile-avatar-btn" />
+                <span>▼</span>
+              </button>
+              
+              {dropdownOpen && (
+                <div 
+                  className="profile-dropdown-menu"
+                  onMouseEnter={() => setDropdownOpen(true)}
+                  onMouseLeave={() => setDropdownOpen(false)}
+                >
+                  <div className="dropdown-user-section">
+                    <img src="src/assets/icons/ava-1.png" alt="Profile" />
+                    <div>
+                      <div className="user-name">{getDisplayName()}</div>
+                      <div className="user-email">{userProfile?.email}</div>
+                      <div className="user-credits">{userProfile?.credits || 0} credits</div>
+                    </div>
+                  </div>
+                  
+                  <hr />
+                  
+                  <button onClick={() => { handleNavigate('profile'); setDropdownOpen(false); }}>
+                    👤 View Profile
+                  </button>
+                  
+                  <button onClick={() => { handleNavigate('settings'); setDropdownOpen(false); }}>
+                    ⚙️ Settings
+                  </button>
+                  
+                  <button onClick={() => { handleNavigate('credits'); setDropdownOpen(false); }}>
+                    💰 Credits
+                  </button>
+                  
+                  <hr />
+                  
+                  <button onClick={() => { navigate('/'); setDropdownOpen(false); }}>
+                    🏠 Home
+                  </button>
+                  
+                  <button 
+                    onClick={() => { handleLogout(); setDropdownOpen(false); }}
+                    style={{ color: '#ef4444' }}
+                  >
+                    🚪 Logout
+                  </button>
+                </div>
+              )}
             </div>
+            
             <button 
               className="mobile-menu-btn"
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -356,54 +422,11 @@ const ImprovedDashboard = () => {
               </button>
               
               <button 
-                className={`nav-item ${activeSection === 'profile' ? 'active' : ''}`}
-                onClick={() => handleNavigate('profile')}
-              >
-                <span className="nav-icon">👤</span>
-                Profile
-              </button>
-              
-              <button 
-                className={`nav-item ${activeSection === 'settings' ? 'active' : ''}`}
-                onClick={() => handleNavigate('settings')}
-              >
-                <span className="nav-icon">⚙️</span>
-                Settings
-              </button>
-              
-              {userProfile?.role === 'creator' && (
-                <button 
-                  className={`nav-item ${activeSection === 'creator-form' ? 'active' : ''}`}
-                  onClick={() => navigate('/creator-form')}
-                >
-                  <span className="nav-icon">🎨</span>
-                  Creator Form
-                  {getCreatorFormStatus()?.show && (
-                    <span 
-                      className="status-indicator"
-                      style={{ backgroundColor: getCreatorFormStatus().color }}
-                    >
-                      {getCreatorFormStatus().text}
-                    </span>
-                  )}
-                </button>
-              )}
-              
-              <button 
                 className={`nav-item ${activeSection === 'marketplace' ? 'active' : ''}`}
                 onClick={() => handleNavigate('marketplace')}
               >
                 <span className="nav-icon">🛍️</span>
                 Marketplace
-              </button>
-
-              <button 
-                className={`nav-item ${activeSection === 'credits' ? 'active' : ''}`}
-                onClick={() => handleNavigate('credits')}
-              >
-                <span className="nav-icon">💰</span>
-                Credits
-                <span className="credit-badge">{userProfile?.credits || 0}</span>
               </button>
 
               <button 
@@ -431,24 +454,6 @@ const ImprovedDashboard = () => {
                   Become Creator
                 </button>
               )}
-              
-              <div className="nav-divider"></div>
-              
-              <button 
-                className="nav-item"
-                onClick={() => navigate('/')}
-              >
-                <span className="nav-icon">🏠</span>
-                Back to Home
-              </button>
-              
-              <button 
-                className="nav-item logout-btn"
-                onClick={handleLogout}
-              >
-                <span className="nav-icon">🚪</span>
-                Logout
-              </button>
             </nav>
           </div>
         </aside>
@@ -456,172 +461,173 @@ const ImprovedDashboard = () => {
         {/* Main Content Area */}
         <main className="dashboard-main">
           {activeSection === 'dashboard' && (
-            <>
-              {/* Welcome Section */}
-              <div className="welcome-section">
-                <h1>Welcome back, {getDisplayName()}!</h1>
-                <p>Here's what's happening in your Fairora marketplace today.</p>
-                
-                {/* Creator Status Alert */}
-                {userProfile?.role === 'creator' && getCreatorFormStatus()?.show && (
-                  <div className="status-alert" style={{ borderColor: getCreatorFormStatus().color }}>
-                    <div className="alert-content">
-                      <span className="alert-icon">⚠️</span>
-                      <div>
-                        <h4>Creator Form: {getCreatorFormStatus().text}</h4>
-                        <p>Complete your creator form to start selling products on the marketplace.</p>
-                      </div>
-                      <button 
-                        className="btn-secondary"
-                        onClick={() => navigate('/creator-form')}
-                      >
-                        Complete Form
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* All Products Section */}
-              <section className="dashboard-section">
-                <div className="section-header">
-                  <div>
-                    <h2>All Products</h2>
-                    <p>Discover digital products from approved creators</p>
-                  </div>
-                  <button className="btn-secondary">View All</button>
-                </div>
-                
-                <div className="products-grid">
-                  {filteredProducts.length > 0 ? (
-                    filteredProducts.map((product) => (
-                      <div key={product.id} className="product-card">
-                        <div className="product-image">
-                          <img 
-                            src="src/assets/images/placeholder.jpg" 
-                            alt={product.productTitle}
-                            onError={(e) => {
-                              e.target.src = 'src/assets/images/img-1.jpg';
-                            }}
-                          />
-                          {product.isDemoProduct && (
-                            <div className="demo-badge">Demo</div>
-                          )}
+            <div style={{ display: 'flex', gap: '2rem' }}>
+              {/* Main Content */}
+              <div style={{ flex: 1 }}>
+                {/* Welcome Section */}
+                <div className="welcome-section">
+                  <h1>Welcome back, {getDisplayName()}!</h1>
+                  <p>Here's what's happening in your Fairora marketplace today.</p>
+                  
+                  {/* Creator Status Alert */}
+                  {userProfile?.role === 'creator' && getCreatorFormStatus()?.show && (
+                    <div className="status-alert" style={{ borderColor: getCreatorFormStatus().color }}>
+                      <div className="alert-content">
+                        <span className="alert-icon">⚠️</span>
+                        <div>
+                          <h4>Creator Form: {getCreatorFormStatus().text}</h4>
+                          <p>Complete your creator form to start selling products on the marketplace.</p>
                         </div>
-                        <div className="product-info">
-                          <h4>{product.productTitle}</h4>
-                          <p className="product-creator">by {product.creatorName || 'Unknown'}</p>
-                          <div className="product-category">{product.category}</div>
-                          <div className="product-footer">
-                            <span className="product-price">
-                              {product.productPrice ? `${product.productPrice} credits` : 'Free'}
-                            </span>
-                            <button className="btn-primary product-btn">View</button>
-                          </div>
-                        </div>
+                        <button 
+                          className="btn-secondary"
+                          onClick={() => navigate('/creator-form')}
+                        >
+                          Complete Form
+                        </button>
                       </div>
-                    ))
-                  ) : (
-                    <div className="no-products">
-                      <p>No products available yet. Check back soon!</p>
                     </div>
                   )}
                 </div>
-              </section>
 
-              {/* Trending Trades Section */}
-              <section className="dashboard-section">
-                <div className="section-header">
-                  <div>
-                    <h2>Trending Trades</h2>
-                    <p>Most popular trades this week</p>
+                {/* Trending Trades Section - MOVED TO TOP */}
+                <section className="dashboard-section">
+                  <div className="section-header">
+                    <div>
+                      <h2>Trending Trades</h2>
+                      <p>Most popular trades this week</p>
+                    </div>
+                    <button className="btn-secondary">View All</button>
                   </div>
-                  <button className="btn-secondary">View All</button>
-                </div>
-                
-                <div className="trending-scroll">
-                  <div className="trending-container">
-                    {trendingTrades.map((trade) => (
-                      <div key={trade.id} className={`trade-card ${trade.category}`}>
-                        <div className="trade-main-visual">
-                          <img src={trade.image} alt={trade.title} />
-                        </div>
-                        <div className="trade-info">
-                          <h3>{trade.title}</h3>
-                          <div className="creator-info1">
-                            <span>{trade.creator}</span>
-                            <span className="trade-count">{trade.trades}+ trades</span>
+                  
+                  <div className="trending-scroll">
+                    <div className="trending-container">
+                      {trendingTrades.map((trade) => (
+                        <div key={trade.id} className={`trade-card ${trade.category}`}>
+                          <div className="trade-main-visual">
+                            <img src={trade.image} alt={trade.title} />
                           </div>
+                          <div className="trade-info">
+                            <h3>{trade.title}</h3>
+                            <div className="creator-info1">
+                              <span>{trade.creator}</span>
+                              <span className="trade-count">{trade.trades}+ trades</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                {/* All Products Section */}
+                <section className="dashboard-section">
+                  <div className="section-header">
+                    <div>
+                      <h2>All Products</h2>
+                      <p>Discover digital products from approved creators</p>
+                    </div>
+                    <button className="btn-secondary">View All</button>
+                  </div>
+
+                  <div className="products-grid">
+                    {filteredProducts.length > 0 ? (
+                      filteredProducts.map((product) => (
+                        <div key={product.id} className="product-card" onClick={() => navigate(`/product/${product.id}`)}>
+                          <div className="product-image">
+                            <img 
+                              src="src/assets/images/placeholder.jpg" 
+                              alt={product.productTitle}
+                              onError={(e) => {
+                                e.target.src = 'src/assets/images/img-1.jpg';
+                              }}
+                            />
+                            {product.isDemoProduct && (
+                              <div className="demo-badge">Demo</div>
+                            )}
+                          </div>
+                          <div className="product-info">
+                            <h4>{product.productTitle}</h4>
+                            <p className="product-creator">by {product.creatorName || 'Unknown'}</p>
+                            <div className="product-category">{product.category}</div>
+                            <div className="product-footer">
+                              <span className="product-price">
+                                {product.productPrice ? `${product.productPrice} credits` : 'Free'}
+                              </span>
+                              <button className="btn-primary product-btn">View</button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="no-products">
+                        <p>No products available yet. Check back soon!</p>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              </div>
+
+              {/* Right Sidebar */}
+              <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                {/* Top Creators Section - MOVED TO RIGHT */}
+                <section style={{ background: '#f9fafb', borderRadius: '16px', padding: '1.5rem', border: '1px solid #e5e7eb' }}>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <h3 style={{ color: '#1f2937', fontSize: '1.5rem', margin: '0 0 0.5rem 0' }}>Top Creators</h3>
+                    <p style={{ color: '#6b7280', margin: 0, fontSize: '0.875rem' }}>Leading creators by sales and trades</p>
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {topCreators.slice(0, 5).map((creator, index) => (
+                      <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)', color: 'white', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                          {index + 1}
+                        </div>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
+                          <img src={`src/assets/icons/${creator.avatar}`} alt={creator.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <h4 style={{ color: '#1f2937', fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.25rem 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{creator.name}</h4>
+                          <p style={{ color: '#6b7280', fontSize: '0.75rem', margin: 0 }}>{creator.trades} trades • {creator.earnings}</p>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              </section>
+                  <button className="btn-secondary" style={{ width: '100%', marginTop: '1rem' }}>View Rankings</button>
+                </section>
 
-              {/* Top Creators Section */}
-              <section className="dashboard-section">
-                <div className="section-header">
-                  <div>
-                    <h2>Top Creators</h2>
-                    <p>Leading creators by sales and trades</p>
+                {/* Creator Forums Section - MOVED TO RIGHT */}
+                <section style={{ background: '#f9fafb', borderRadius: '16px', padding: '1.5rem', border: '1px solid #e5e7eb' }}>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <h3 style={{ color: '#1f2937', fontSize: '1.5rem', margin: '0 0 0.5rem 0' }}>Creator Forums</h3>
+                    <p style={{ color: '#6b7280', margin: 0, fontSize: '0.875rem' }}>Latest discussions and community topics</p>
                   </div>
-                  <button className="btn-secondary">View Rankings</button>
-                </div>
-                
-                <div className="creators-grid">
-                  {topCreators.map((creator, index) => (
-                    <div key={index} className="creator-card">
-                      <div className="creator-rank">{index + 1}</div>
-                      <div className="creator-avatar">
-                        <img src={`src/assets/icons/${creator.avatar}`} alt={creator.name} />
-                      </div>
-                      <div className="creator-info">
-                        <h4>{creator.name}</h4>
-                        <p className="creator-stats">
-                          {creator.trades} trades • <strong>{creator.earnings} earned</strong>
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              {/* Creator Forums Section */}
-              <section className="dashboard-section">
-                <div className="section-header">
-                  <div>
-                    <h2>Creator Forums</h2>
-                    <p>Latest discussions and community topics</p>
-                  </div>
-                  <button className="btn-secondary">Join Discussion</button>
-                </div>
-                
-                <div className="forum-list">
-                  {forumTopics.map((topic) => (
-                    <div key={topic.id} className="forum-item">
-                      <div className="forum-content">
-                        <div className="forum-header">
-                          <h4>{topic.title}</h4>
-                          <span className="forum-category">{topic.category}</span>
-                        </div>
-                        <div className="forum-meta">
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {forumTopics.map((topic) => (
+                      <div key={topic.id} style={{ padding: '0.75rem', background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                        <h4 style={{ color: '#1f2937', fontSize: '0.875rem', fontWeight: 500, margin: '0 0 0.5rem 0', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {topic.title}
+                        </h4>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
                           <span>by {topic.author}</span>
-                          <span>•</span>
-                          <span>{topic.replies} replies</span>
-                          <span>•</span>
-                          <span>{topic.lastActivity}</span>
+                          <span style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#2563eb', padding: '0.125rem 0.375rem', borderRadius: '10px', fontSize: '0.625rem', fontWeight: 500 }}>
+                            {topic.replies} replies
+                          </span>
                         </div>
+                        <span style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', padding: '0.125rem 0.375rem', borderRadius: '10px', fontSize: '0.625rem', fontWeight: 500, display: 'inline-block' }}>
+                          {topic.category}
+                        </span>
                       </div>
-                      <button className="btn-secondary forum-btn">Reply</button>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            </>
+                    ))}
+                  </div>
+                  <button className="btn-secondary" style={{ width: '100%', marginTop: '1rem' }}>Join Discussion</button>
+                </section>
+              </div>
+            </div>
           )}
 
-          {/* Other sections placeholders */}
+
+          {/* Other sections using improved dashboard styling */}
           {activeSection === 'profile' && (
             <section className="dashboard-section">
               <h2>Profile Settings</h2>
@@ -650,6 +656,7 @@ const ImprovedDashboard = () => {
             </section>
           )}
 
+          {/* Buyer-specific sections using improved dashboard styling */}
           {activeSection === 'credits' && (
             <section className="dashboard-section">
               <div className="section-header">
@@ -677,22 +684,22 @@ const ImprovedDashboard = () => {
               )}
 
               <div className="credit-content" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                <div className="transfer-section" style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', border: '2px solid #e5e7eb' }}>
-                  <h3 style={{ marginBottom: '1rem', color: '#1f2937' }}>Transfer Credits</h3>
+                <div className="transfer-section" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <h3 style={{ marginBottom: '1rem', color: '#ffffff' }}>Transfer Credits</h3>
                   <form onSubmit={handleCreditTransfer} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>Recipient User ID:</label>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem', color: '#9ca3af' }}>Recipient User ID:</label>
                       <input
                         type="text"
                         value={recipientUserId}
                         onChange={(e) => setRecipientUserId(e.target.value)}
                         placeholder="Enter recipient's user ID"
                         required
-                        style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '8px' }}
+                        style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', color: '#ffffff' }}
                       />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>Amount:</label>
+                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem', color: '#9ca3af' }}>Amount:</label>
                       <input
                         type="number"
                         value={transferAmount}
@@ -701,19 +708,16 @@ const ImprovedDashboard = () => {
                         min="1"
                         max={userProfile?.credits || 0}
                         required
-                        style={{ width: '100%', padding: '0.75rem', border: '2px solid #e5e7eb', borderRadius: '8px' }}
+                        style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', color: '#ffffff' }}
                       />
                     </div>
                     <button 
                       type="submit" 
                       disabled={transferLoading}
+                      className="btn-primary"
                       style={{ 
                         padding: '1rem', 
-                        background: transferLoading ? '#9ca3af' : '#3b82f6', 
-                        color: 'white', 
-                        border: 'none', 
-                        borderRadius: '8px', 
-                        fontWeight: 600,
+                        opacity: transferLoading ? 0.6 : 1,
                         cursor: transferLoading ? 'not-allowed' : 'pointer'
                       }}
                     >
@@ -722,13 +726,13 @@ const ImprovedDashboard = () => {
                   </form>
                 </div>
 
-                <div className="credit-info" style={{ background: '#f0f9ff', padding: '1.5rem', borderRadius: '8px', border: '2px solid #dbeafe' }}>
-                  <h3 style={{ marginBottom: '1rem', color: '#1e40af' }}>Credit System</h3>
+                <div className="credit-info" style={{ background: 'rgba(168, 85, 247, 0.1)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                  <h3 style={{ marginBottom: '1rem', color: '#a855f7' }}>Credit System</h3>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                    <li style={{ padding: '0.5rem 0', color: '#374151' }}>💰 Purchase digital products with credits</li>
-                    <li style={{ padding: '0.5rem 0', color: '#374151' }}>🔄 Transfer credits to other users</li>
-                    <li style={{ padding: '0.5rem 0', color: '#374151' }}>🎁 Earn credits through referrals</li>
-                    <li style={{ padding: '0.5rem 0', color: '#374151' }}>📊 All transactions are logged</li>
+                    <li style={{ padding: '0.5rem 0', color: '#9ca3af' }}>💰 Purchase digital products with credits</li>
+                    <li style={{ padding: '0.5rem 0', color: '#9ca3af' }}>🔄 Transfer credits to other users</li>
+                    <li style={{ padding: '0.5rem 0', color: '#9ca3af' }}>🎁 Earn credits through referrals</li>
+                    <li style={{ padding: '0.5rem 0', color: '#9ca3af' }}>📊 All transactions are logged</li>
                   </ul>
                 </div>
               </div>
@@ -745,35 +749,35 @@ const ImprovedDashboard = () => {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-                <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', border: '2px solid #e5e7eb' }}>
+                <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '1.5rem', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>👥</div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1f2937' }}>{userProfile?.totalReferrals || 0}</div>
-                  <div style={{ fontSize: '0.875rem', color: '#6b7280', textTransform: 'uppercase' }}>Total Referrals</div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff' }}>{userProfile?.totalReferrals || 0}</div>
+                  <div style={{ fontSize: '0.875rem', color: '#9ca3af', textTransform: 'uppercase' }}>Total Referrals</div>
                 </div>
-                <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', border: '2px solid #e5e7eb' }}>
+                <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '1.5rem', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💰</div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1f2937' }}>{userProfile?.creditsFromReferrals || 0}</div>
-                  <div style={{ fontSize: '0.875rem', color: '#6b7280', textTransform: 'uppercase' }}>Credits Earned</div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff' }}>{userProfile?.creditsFromReferrals || 0}</div>
+                  <div style={{ fontSize: '0.875rem', color: '#9ca3af', textTransform: 'uppercase' }}>Credits Earned</div>
                 </div>
-                <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', textAlign: 'center', border: '2px solid #e5e7eb' }}>
+                <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '1.5rem', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⏳</div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#1f2937' }}>{userProfile?.pendingReferralCredits || 0}</div>
-                  <div style={{ fontSize: '0.875rem', color: '#6b7280', textTransform: 'uppercase' }}>Pending Credits</div>
+                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff' }}>{userProfile?.pendingReferralCredits || 0}</div>
+                  <div style={{ fontSize: '0.875rem', color: '#9ca3af', textTransform: 'uppercase' }}>Pending Credits</div>
                 </div>
               </div>
 
-              <div style={{ background: '#f0f9ff', padding: '2rem', borderRadius: '12px', border: '2px solid #dbeafe', textAlign: 'center' }}>
-                <h3 style={{ margin: '0 0 1rem 0', color: '#1e40af' }}>Your Referral Code</h3>
-                <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'monospace', background: '#e5e7eb', padding: '0.5rem 1rem', borderRadius: '6px', display: 'inline-block', marginBottom: '1rem' }}>
+              <div style={{ background: 'rgba(168, 85, 247, 0.1)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(168, 85, 247, 0.2)', textAlign: 'center' }}>
+                <h3 style={{ margin: '0 0 1rem 0', color: '#a855f7' }}>Your Referral Code</h3>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'monospace', background: 'rgba(255, 255, 255, 0.1)', padding: '0.5rem 1rem', borderRadius: '6px', display: 'inline-block', marginBottom: '1rem', color: '#ffffff' }}>
                   {userProfile?.referralCode || 'GENERATING...'}
                 </div>
                 <div style={{ marginBottom: '1rem' }}>
-                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#1e40af' }}>How it works:</h4>
-                  <ul style={{ textAlign: 'left', maxWidth: '400px', margin: '0 auto', color: '#374151' }}>
-                    <li>Share your referral code with friends</li>
-                    <li>They get 25 credits when they sign up</li>
-                    <li>You get 50 credits when they make their first purchase</li>
-                    <li>No limit on the number of referrals!</li>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#a855f7' }}>How it works:</h4>
+                  <ul style={{ textAlign: 'left', maxWidth: '400px', margin: '0 auto', color: '#9ca3af', listStyle: 'none', padding: 0 }}>
+                    <li style={{ padding: '0.25rem 0' }}>Share your referral code with friends</li>
+                    <li style={{ padding: '0.25rem 0' }}>They get 25 credits when they sign up</li>
+                    <li style={{ padding: '0.25rem 0' }}>You get 50 credits when they make their first purchase</li>
+                    <li style={{ padding: '0.25rem 0' }}>No limit on the number of referrals!</li>
                   </ul>
                 </div>
               </div>
@@ -790,31 +794,25 @@ const ImprovedDashboard = () => {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-                <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', border: '2px solid #e5e7eb', textAlign: 'center' }}>
+                <div className="creator-card" style={{ textAlign: 'center', cursor: 'default' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎧</div>
-                  <h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>Contact Support</h3>
-                  <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>Get help with your account, purchases, or technical issues.</p>
-                  <button style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
-                    Open Support Ticket
-                  </button>
+                  <h3>Contact Support</h3>
+                  <p style={{ color: '#9ca3af', marginBottom: '1.5rem' }}>Get help with your account, purchases, or technical issues.</p>
+                  <button className="btn-primary">Open Support Ticket</button>
                 </div>
 
-                <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', border: '2px solid #e5e7eb', textAlign: 'center' }}>
+                <div className="creator-card" style={{ textAlign: 'center', cursor: 'default' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>❓</div>
-                  <h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>FAQ</h3>
-                  <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>Find answers to common questions about credits, purchases, and more.</p>
-                  <button style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
-                    View FAQ
-                  </button>
+                  <h3>FAQ</h3>
+                  <p style={{ color: '#9ca3af', marginBottom: '1.5rem' }}>Find answers to common questions about credits, purchases, and more.</p>
+                  <button className="btn-secondary">View FAQ</button>
                 </div>
 
-                <div style={{ background: 'white', padding: '2rem', borderRadius: '8px', border: '2px solid #e5e7eb', textAlign: 'center' }}>
+                <div className="creator-card" style={{ textAlign: 'center', cursor: 'default' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚨</div>
-                  <h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>Report Issue</h3>
-                  <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>Report problems with products, transactions, or user behavior.</p>
-                  <button style={{ background: '#ef4444', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>
-                    Report Issue
-                  </button>
+                  <h3>Report Issue</h3>
+                  <p style={{ color: '#9ca3af', marginBottom: '1.5rem' }}>Report problems with products, transactions, or user behavior.</p>
+                  <button className="btn-primary" style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' }}>Report Issue</button>
                 </div>
               </div>
             </section>
@@ -829,41 +827,33 @@ const ImprovedDashboard = () => {
                 </div>
               </div>
 
-              <div style={{ textAlign: 'center', padding: '3rem', background: '#f9fafb', borderRadius: '12px', border: '2px solid #e5e7eb' }}>
+              <div style={{ textAlign: 'center', padding: '3rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                 <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎨</div>
-                <h3 style={{ margin: '0 0 1rem 0', color: '#1f2937', fontSize: '2rem' }}>Join Our Creator Community</h3>
-                <p style={{ color: '#6b7280', marginBottom: '2rem', fontSize: '1.1rem' }}>Start earning by selling your digital products to thousands of buyers</p>
+                <h3 style={{ margin: '0 0 1rem 0', color: '#ffffff', fontSize: '2rem' }}>Join Our Creator Community</h3>
+                <p style={{ color: '#9ca3af', marginBottom: '2rem', fontSize: '1.1rem' }}>Start earning by selling your digital products to thousands of buyers</p>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💰</div>
-                    <h4 style={{ margin: '0 0 0.5rem 0', color: '#374151' }}>Earn Credits</h4>
-                    <p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>Get paid for every sale</p>
+                    <h4 style={{ margin: '0 0 0.5rem 0', color: '#ffffff' }}>Earn Credits</h4>
+                    <p style={{ margin: 0, color: '#9ca3af', fontSize: '0.9rem' }}>Get paid for every sale</p>
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🛍️</div>
-                    <h4 style={{ margin: '0 0 0.5rem 0', color: '#374151' }}>Global Market</h4>
-                    <p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>Reach buyers worldwide</p>
+                    <h4 style={{ margin: '0 0 0.5rem 0', color: '#ffffff' }}>Global Market</h4>
+                    <p style={{ margin: 0, color: '#9ca3af', fontSize: '0.9rem' }}>Reach buyers worldwide</p>
                   </div>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🎯</div>
-                    <h4 style={{ margin: '0 0 0.5rem 0', color: '#374151' }}>Easy Setup</h4>
-                    <p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>Simple application process</p>
+                    <h4 style={{ margin: '0 0 0.5rem 0', color: '#ffffff' }}>Easy Setup</h4>
+                    <p style={{ margin: 0, color: '#9ca3af', fontSize: '0.9rem' }}>Simple application process</p>
                   </div>
                 </div>
 
                 <button 
                   onClick={() => navigate('/creator-application')}
-                  style={{ 
-                    background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', 
-                    color: 'white', 
-                    border: 'none', 
-                    padding: '1rem 2rem', 
-                    borderRadius: '8px', 
-                    fontSize: '1.1rem',
-                    fontWeight: 600, 
-                    cursor: 'pointer' 
-                  }}
+                  className="btn-primary"
+                  style={{ fontSize: '1.1rem', padding: '1rem 2rem' }}
                 >
                   Apply to Become Creator
                 </button>
@@ -876,4 +866,4 @@ const ImprovedDashboard = () => {
   );
 };
 
-export default ImprovedDashboard;
+export default BuyerDashboard;

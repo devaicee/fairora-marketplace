@@ -11,6 +11,10 @@ import ImprovedDashboard from './routes/ImprovedDashboard'
 import RefactoredDashboard from './routes/RefactoredDashboard'
 import ProfilePage from './routes/ProfilePage'
 import SettingsPage from './routes/SettingsPage'
+import BuyerDashboard from './pages/buyer/BuyerDashboard'
+import ProductDetail from './pages/buyer/ProductDetail'
+import CreatorApplication from './pages/buyer/CreatorApplication'
+import DashboardRouter from './components/DashboardRouter'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -28,12 +32,27 @@ function App() {
           } />
           <Route path="/dashboard" element={
             <ProtectedRoute>
-              <EnhancedDashboard />
+              <DashboardRouter />
             </ProtectedRoute>
           } />
           <Route path="/user-dashboard" element={
             <ProtectedRoute>
               <ImprovedDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/buyer-dashboard" element={
+            <ProtectedRoute>
+              <BuyerDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/product/:productId" element={
+            <ProtectedRoute>
+              <ProductDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/creator-application" element={
+            <ProtectedRoute>
+              <CreatorApplication />
             </ProtectedRoute>
           } />
           <Route path="/dashboard/*" element={

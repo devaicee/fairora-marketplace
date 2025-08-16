@@ -424,7 +424,7 @@ const BuyerDashboard = () => {
         {/* Left Sidebar */}
         <aside className={`dashboard-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
           <div className="sidebar-content">
-            <nav className="sidebar-nav" style={{ display: 'flex', gap: '1rem', width: '230px' }}>
+            <nav className="sidebar-nav">
               <button 
                 className={`nav-item ${activeSection === 'dashboard' ? 'active' : ''}`}
                 onClick={() => handleNavigate('dashboard')}
@@ -479,11 +479,20 @@ const BuyerDashboard = () => {
         </aside>
 
         {/* Main Content Area */}
-        <main className="dashboard-main hide-scrollbar" style={{ height: 'calc(100vh - 4rem)' }}>
+        <main className="dashboard-main hide-scrollbar">
           {activeSection === 'dashboard' && (
-            <div style={{ display: 'flex', gap: '1rem', minHeight: '100%', padding: '1rem', position: 'relative' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: '1.5rem', 
+              minHeight: '100%', 
+              padding: '1rem',
+              paddingBottom: '3rem'
+            }}>
               {/* Main Content */}
-              <div style={{ flex: 1, paddingRight: '340px' }}>
+              <div style={{ 
+                flex: 1, 
+                minWidth: 0
+              }}>
                 {/* Welcome Section */}
                 <div className="welcome-section">
                   <h1>{isNewUser() ? `Hello, ${getDisplayName()}!` : `Welcome back, ${getDisplayName()}!`}</h1>
@@ -599,7 +608,16 @@ const BuyerDashboard = () => {
               </div>
 
               {/* Right Sidebar */}
-              <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'absolute', right: '0', top: '0', paddingBottom: '2rem' }}>
+              <div className="dashboard-right-sidebar" style={{ 
+                width: '320px', 
+                minWidth: '320px',
+                maxWidth: '320px',
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '1.5rem',
+                paddingBottom: '3rem',
+                overflowY: 'auto'
+              }}>
                 {/* Trending Trades Section */}
                 <section style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', flex: '0 0 auto' }}>
                   <div style={{ marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
@@ -657,47 +675,6 @@ const BuyerDashboard = () => {
                   </div>
                   <button className="btn-secondary" style={{ width: '100%', marginTop: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#ffffff', borderRadius: '8px', padding: '0.75rem', fontSize: '0.875rem' }}>View Rankings</button>
                 </section>
-
-                {/* Creator Forums Section */}
-                <section style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', flex: '1 1 auto', minHeight: 0, overflow: 'hidden' }}>
-                  <div style={{ marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <h3 style={{ color: '#ffffff', fontSize: '1.1rem', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>💬 Creator Forums</h3>
-                    <p style={{ color: '#9ca3af', margin: 0, fontSize: '0.875rem' }}>Community discussions and support</p>
-                  </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflow: 'hidden' }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)', cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}>
-                      <div style={{ fontSize: '1.5rem', width: '2rem', height: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)', flexShrink: 0 }}>
-                        💡
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ color: '#ffffff', fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.25rem 0' }}>Ideas & Feedback</h4>
-                        <p style={{ color: '#9ca3af', fontSize: '0.75rem', margin: 0, lineHeight: 1.3 }}>Share ideas and get feedback</p>
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)', cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}>
-                      <div style={{ fontSize: '1.5rem', width: '2rem', height: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)', flexShrink: 0 }}>
-                        🎨
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ color: '#ffffff', fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.25rem 0' }}>Creator Showcase</h4>
-                        <p style={{ color: '#9ca3af', fontSize: '0.75rem', margin: 0, lineHeight: 1.3 }}>Show your work and get discovered</p>
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)', cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}>
-                      <div style={{ fontSize: '1.5rem', width: '2rem', height: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)', flexShrink: 0 }}>
-                        ❓
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ color: '#ffffff', fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.25rem 0' }}>Help & Support</h4>
-                        <p style={{ color: '#9ca3af', fontSize: '0.75rem', margin: 0, lineHeight: 1.3 }}>Get help with platform features</p>
-                      </div>
-                    </div>
-                  </div>
-                  <button className="btn-secondary" style={{ width: '100%', marginTop: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#ffffff', borderRadius: '8px', padding: '0.75rem', fontSize: '0.875rem' }}>Browse All Categories</button>
-                </section>
               </div>
             </div>
           )}
@@ -705,7 +682,8 @@ const BuyerDashboard = () => {
 
           {/* Other sections using improved dashboard styling */}
           {activeSection === 'profile' && (
-            <section className="dashboard-section">
+            <div style={{ padding: '1rem', paddingBottom: '3rem' }}>
+              <section className="dashboard-section">
               <h2>Profile Settings</h2>
               <div className="profile-content">
                 <div className="profile-card">
@@ -716,24 +694,29 @@ const BuyerDashboard = () => {
                 </div>
               </div>
             </section>
+            </div>
           )}
 
           {activeSection === 'settings' && (
-            <section className="dashboard-section">
+            <div style={{ padding: '1rem', paddingBottom: '3rem' }}>
+              <section className="dashboard-section">
               <h2>Account Settings</h2>
               <p>Configure your account settings and preferences.</p>
             </section>
+            </div>
           )}
 
           {activeSection === 'marketplace' && (
-            <section className="dashboard-section">
+            <div style={{ padding: '1rem', paddingBottom: '3rem' }}>
+              <section className="dashboard-section">
               <h2>Marketplace</h2>
               <p>Browse and purchase digital products.</p>
             </section>
+            </div>
           )}
 
           {activeSection === 'forums' && (
-            <div className="forums-main-content">
+            <div className="forums-main-content" style={{ padding: '1rem', paddingBottom: '3rem' }}>
               <section className="dashboard-section">
                 <div className="section-header">
                   <div>
@@ -841,7 +824,8 @@ const BuyerDashboard = () => {
 
           {/* Buyer-specific sections using improved dashboard styling */}
           {activeSection === 'credits' && (
-            <section className="dashboard-section">
+            <div style={{ padding: '1rem', paddingBottom: '3rem' }}>
+              <section className="dashboard-section">
               <div className="section-header">
                 <div>
                   <h2>Credit Management</h2>
@@ -920,10 +904,12 @@ const BuyerDashboard = () => {
                 </div>
               </div>
             </section>
+            </div>
           )}
 
           {activeSection === 'referrals' && (
-            <section className="dashboard-section">
+            <div style={{ padding: '1rem', paddingBottom: '3rem' }}>
+              <section className="dashboard-section">
               <div className="section-header">
                 <div>
                   <h2>Referral Program</h2>
@@ -965,10 +951,12 @@ const BuyerDashboard = () => {
                 </div>
               </div>
             </section>
+            </div>
           )}
 
           {activeSection === 'support' && (
-            <section className="dashboard-section">
+            <div style={{ padding: '1rem', paddingBottom: '3rem' }}>
+              <section className="dashboard-section">
               <div className="section-header">
                 <div>
                   <h2>Support Center</h2>
@@ -999,10 +987,12 @@ const BuyerDashboard = () => {
                 </div>
               </div>
             </section>
+            </div>
           )}
 
           {activeSection === 'become-creator' && (
-            <section className="dashboard-section">
+            <div style={{ padding: '1rem', paddingBottom: '3rem' }}>
+              <section className="dashboard-section">
               <div className="section-header">
                 <div>
                   <h2>Become a Creator</h2>
@@ -1042,6 +1032,7 @@ const BuyerDashboard = () => {
                 </button>
               </div>
             </section>
+            </div>
           )}
         </main>
       </div>

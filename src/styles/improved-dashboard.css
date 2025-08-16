@@ -17,20 +17,24 @@
 
 /* Main Dashboard Container */
 .improved-dashboard {
-  min-height: 100vh;
+  height: 100vh;
   background: #1a1a1a;
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Dashboard Header - Exact match with App.css .header */
 .improved-dashboard .header {
   backdrop-filter: blur(20px);
-  position: fixed;
+  position: sticky;
   top: 0;
   z-index: 100;
   width: 100%;
-  height: 70px;
+  height: 4rem;
+  flex-shrink: 0;
 }
 
 .improved-dashboard .header .container {
@@ -265,45 +269,51 @@
 /* Layout */
 .dashboard-layout {
   display: flex;
-  min-height: calc(100vh - 80px);
+  flex-direction: row;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
 }
 
 /* Left Sidebar */
 .dashboard-sidebar {
   width: 230px;
-  position: sticky;
-  top: 80px;
-  height: 100vh;
+  flex-shrink: 0;
+  height: 100%;
   transition: transform 0.3s ease;
+  overflow-y: auto;
 }
 
 .sidebar-content {
-  padding: 24px 16px;
+  padding: 1rem;
+  width: 100%;
+  height: 100%;
 }
 
 /* Sidebar Navigation */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 90px;
+  gap: 0.5rem;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 15px 10px;
+  gap: 12px;
+  padding: 12px 16px;
   background: transparent;
   border: none;
-  border-radius: 12px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: left;
   position: relative;
   color: #ffffff;
-  width: 100%;
+  white-space: nowrap;
+  outline: none;
 }
 
 .nav-item:hover {
@@ -312,11 +322,37 @@
   color: #ffffff;
 }
 
+.nav-item:focus {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.4);
+  transform: translateX(2px);
+}
+
+.nav-item:focus-visible {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.4);
+  transform: translateX(2px);
+}
+
 .nav-item.active {
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
   color: #a855f7;
   font-weight: 600;
   border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.nav-item.active:hover {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%);
+  color: #a855f7;
+  transform: translateX(4px);
+}
+
+.nav-item.active:focus,
+.nav-item.active:focus-visible {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(236, 72, 153, 0.25) 100%);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.5);
+  color: #a855f7;
+  transform: translateX(2px);
 }
 
 .nav-item.active::before {
@@ -333,6 +369,12 @@
 .nav-icon {
   font-size: 18px;
   flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.nav-item.active .nav-icon {
+  color: #a855f7;
+  filter: brightness(1.2);
 }
 
 .status-indicator {
@@ -374,12 +416,35 @@
   color: #ffffff !important;
 }
 
+/* Utility Classes */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Remove default browser outlines and replace with theme-consistent focus styles */
+button:focus,
+button:focus-visible {
+  outline: none;
+}
+
+.improved-dashboard button:focus,
+.improved-dashboard button:focus-visible {
+  outline: none;
+}
+
 /* Main Content */
 .dashboard-main {
   flex: 1;
-  padding: 40px;
-  overflow-y: hidden;
-  max-width: calc(100vw - 280px);
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  min-width: 0;
 }
 
 /* Welcome Section */
@@ -943,7 +1008,11 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
   .dashboard-main {
-    padding: 32px;
+    padding: 0;
+  }
+  
+  .dashboard-right-sidebar {
+    display: none;
   }
   
   .products-grid {
@@ -959,6 +1028,27 @@
   
   .profile-info {
     display: none;
+  }
+
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .dashboard-sidebar {
+    position: fixed;
+    left: -280px;
+    top: 4rem;
+    height: calc(100vh - 4rem);
+    z-index: 50;
+    background: #1a1a1a;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
+  }
+
+  .dashboard-sidebar.sidebar-open {
+    left: 0;
   }
   
   .profile-dropdown {
@@ -983,23 +1073,10 @@
     padding: 16px 20px;
   }
   
-  .dashboard-sidebar {
-    position: fixed;
-    left: -280px;
-    top: 72px;
-    z-index: 50;
-    background: rgba(26, 26, 26, 0.98);
-    backdrop-filter: blur(20px);
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
-  }
-  
-  .dashboard-sidebar.sidebar-open {
-    transform: translateX(280px);
-  }
   
   .dashboard-main {
-    max-width: 100%;
-    padding: 24px 20px;
+    flex: 1;
+    min-width: 0;
   }
   
   .welcome-section {
@@ -1061,8 +1138,13 @@
 }
 
 @media (max-width: 480px) {
+  .dashboard-sidebar {
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
+  }
   .dashboard-main {
-    padding: 16px;
+    padding: 0;
   }
   
   .dashboard-search {

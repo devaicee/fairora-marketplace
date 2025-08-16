@@ -270,7 +270,7 @@
 }
 
 .sidebar-nav {
-  padding: 24px 0;
+  padding: 24px 15px;
   display: flex;
   flex-direction: column;
 }
@@ -278,7 +278,6 @@
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 16px;
   padding: 16px 24px;
   background: transparent;
   border: none;
@@ -289,7 +288,6 @@
   transition: all 0.3s ease;
   text-align: left;
   position: relative;
-  margin: 0 12px;
   border-radius: 12px;
 }
 

@@ -189,6 +189,14 @@ const BuyerDashboard = () => {
     return userProfile?.displayName || user?.displayName || userProfile?.email?.split('@')[0] || 'User';
   };
 
+  const isNewUser = () => {
+    if (!userProfile?.firstVisit) return false;
+    const firstVisitDate = new Date(userProfile.firstVisit);
+    const now = new Date();
+    const hoursDiff = (now - firstVisitDate) / (1000 * 60 * 60);
+    return hoursDiff < 24; // Consider user "new" for first 24 hours
+  };
+
   const getCreatorFormStatus = () => {
     if (!userProfile || userProfile.role !== 'creator') return null;
     
@@ -312,7 +320,7 @@ const BuyerDashboard = () => {
   return (
     <div className="improved-dashboard">
       {/* Top Navigation Bar */}
-      <header className="header">
+      <header className="header" style={{ position: 'sticky', top: '0', zIndex: '1000', backgroundColor: 'rgba(26, 26, 26, 0.95)', backdropFilter: 'blur(20px)' }}>
         <div className="container">
           <div className="dashboard-brand">
             <div className="logo">
@@ -323,17 +331,21 @@ const BuyerDashboard = () => {
             </div>
           </div>
           
-          <div className="dashboard-search">
-            <input
-              type="text"
-              placeholder="Search products, creators, forums..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input-header"
-            />
-          </div>
-          
           <div className="dashboard-profile-menu">
+            <div className="dashboard-search">
+              <div className="search-input-container">
+                <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search products, creators, forums..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input-header"
+                />
+              </div>
+            </div>
             <div className="profile-dropdown-wrapper">
               <button 
                 className="profile-btn"
@@ -412,7 +424,7 @@ const BuyerDashboard = () => {
         {/* Left Sidebar */}
         <aside className={`dashboard-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
           <div className="sidebar-content">
-            <nav className="sidebar-nav">
+            <nav className="sidebar-nav" style={{ display: 'flex', gap: '1rem', width: '230px' }}>
               <button 
                 className={`nav-item ${activeSection === 'dashboard' ? 'active' : ''}`}
                 onClick={() => handleNavigate('dashboard')}
@@ -427,6 +439,14 @@ const BuyerDashboard = () => {
               >
                 <span className="nav-icon">🛍️</span>
                 Marketplace
+              </button>
+              
+              <button 
+                className={`nav-item ${activeSection === 'forums' ? 'active' : ''}`}
+                onClick={() => handleNavigate('forums')}
+              >
+                <span className="nav-icon">💬</span>
+                Creator Forums
               </button>
 
               <button 
@@ -459,14 +479,14 @@ const BuyerDashboard = () => {
         </aside>
 
         {/* Main Content Area */}
-        <main className="dashboard-main">
+        <main className="dashboard-main hide-scrollbar" style={{ height: 'calc(100vh - 4rem)' }}>
           {activeSection === 'dashboard' && (
-            <div style={{ display: 'flex', gap: '2rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', minHeight: '100%', padding: '1rem', position: 'relative' }}>
               {/* Main Content */}
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, paddingRight: '340px' }}>
                 {/* Welcome Section */}
                 <div className="welcome-section">
-                  <h1>Welcome back, {getDisplayName()}!</h1>
+                  <h1>{isNewUser() ? `Hello, ${getDisplayName()}!` : `Welcome back, ${getDisplayName()}!`}</h1>
                   <p>Here's what's happening in your Fairora marketplace today.</p>
                   
                   {/* Creator Status Alert */}
@@ -489,42 +509,12 @@ const BuyerDashboard = () => {
                   )}
                 </div>
 
-                {/* Trending Trades Section - MOVED TO TOP */}
+                {/* Featured Products Section */}
                 <section className="dashboard-section">
                   <div className="section-header">
                     <div>
-                      <h2>Trending Trades</h2>
-                      <p>Most popular trades this week</p>
-                    </div>
-                    <button className="btn-secondary">View All</button>
-                  </div>
-                  
-                  <div className="trending-scroll">
-                    <div className="trending-container">
-                      {trendingTrades.map((trade) => (
-                        <div key={trade.id} className={`trade-card ${trade.category}`}>
-                          <div className="trade-main-visual">
-                            <img src={trade.image} alt={trade.title} />
-                          </div>
-                          <div className="trade-info">
-                            <h3>{trade.title}</h3>
-                            <div className="creator-info1">
-                              <span>{trade.creator}</span>
-                              <span className="trade-count">{trade.trades}+ trades</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </section>
-
-                {/* All Products Section */}
-                <section className="dashboard-section">
-                  <div className="section-header">
-                    <div>
-                      <h2>All Products</h2>
-                      <p>Discover digital products from approved creators</p>
+                      <h2>Featured Products</h2>
+                      <p>Discover the best digital products from talented creators</p>
                     </div>
                     <button className="btn-secondary">View All</button>
                   </div>
@@ -565,62 +555,148 @@ const BuyerDashboard = () => {
                     )}
                   </div>
                 </section>
-              </div>
-
-              {/* Right Sidebar */}
-              <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                {/* Top Creators Section - MOVED TO RIGHT */}
-                <section style={{ background: '#f9fafb', borderRadius: '16px', padding: '1.5rem', border: '1px solid #e5e7eb' }}>
-                  <div style={{ marginBottom: '1rem' }}>
-                    <h3 style={{ color: '#1f2937', fontSize: '1.5rem', margin: '0 0 0.5rem 0' }}>Top Creators</h3>
-                    <p style={{ color: '#6b7280', margin: 0, fontSize: '0.875rem' }}>Leading creators by sales and trades</p>
+                
+                {/* Recently Added Products */}
+                <section className="dashboard-section">
+                  <div className="section-header">
+                    <div>
+                      <h2>Recently Added</h2>
+                      <p>Latest products from our creator community</p>
+                    </div>
+                    <button className="btn-secondary">View All Recent</button>
                   </div>
                   
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {topCreators.slice(0, 5).map((creator, index) => (
-                      <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                        <div style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)', color: 'white', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
-                          {index + 1}
+                  <div className="products-grid">
+                    {products.slice(0, 6).map((product) => (
+                      <div key={`recent-${product.id}`} className="product-card" onClick={() => navigate(`/product/${product.id}`)}>
+                        <div className="product-image">
+                          <img 
+                            src="src/assets/images/placeholder.jpg" 
+                            alt={product.productTitle}
+                            onError={(e) => {
+                              e.target.src = 'src/assets/images/img-1.jpg';
+                            }}
+                          />
+                          {product.isDemoProduct && (
+                            <div className="demo-badge">New</div>
+                          )}
                         </div>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
-                          <img src={`src/assets/icons/${creator.avatar}`} alt={creator.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <h4 style={{ color: '#1f2937', fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.25rem 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{creator.name}</h4>
-                          <p style={{ color: '#6b7280', fontSize: '0.75rem', margin: 0 }}>{creator.trades} trades • {creator.earnings}</p>
+                        <div className="product-info">
+                          <h4>{product.productTitle}</h4>
+                          <p className="product-creator">by {product.creatorName || 'Unknown'}</p>
+                          <div className="product-category">{product.category}</div>
+                          <div className="product-footer">
+                            <span className="product-price">
+                              {product.productPrice ? `${product.productPrice} credits` : 'Free'}
+                            </span>
+                            <button className="btn-primary product-btn">View</button>
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <button className="btn-secondary" style={{ width: '100%', marginTop: '1rem' }}>View Rankings</button>
                 </section>
+              </div>
 
-                {/* Creator Forums Section - MOVED TO RIGHT */}
-                <section style={{ background: '#f9fafb', borderRadius: '16px', padding: '1.5rem', border: '1px solid #e5e7eb' }}>
-                  <div style={{ marginBottom: '1rem' }}>
-                    <h3 style={{ color: '#1f2937', fontSize: '1.5rem', margin: '0 0 0.5rem 0' }}>Creator Forums</h3>
-                    <p style={{ color: '#6b7280', margin: 0, fontSize: '0.875rem' }}>Latest discussions and community topics</p>
+              {/* Right Sidebar */}
+              <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'absolute', right: '0', top: '0', paddingBottom: '2rem' }}>
+                {/* Trending Trades Section */}
+                <section style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', flex: '0 0 auto' }}>
+                  <div style={{ marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <h3 style={{ color: '#ffffff', fontSize: '1.1rem', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>📈 Trending Trades</h3>
+                    <p style={{ color: '#9ca3af', margin: 0, fontSize: '0.875rem' }}>Most popular this week</p>
                   </div>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {forumTopics.map((topic) => (
-                      <div key={topic.id} style={{ padding: '0.75rem', background: '#ffffff', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                        <h4 style={{ color: '#1f2937', fontSize: '0.875rem', fontWeight: 500, margin: '0 0 0.5rem 0', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                          {topic.title}
-                        </h4>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
-                          <span>by {topic.author}</span>
-                          <span style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#2563eb', padding: '0.125rem 0.375rem', borderRadius: '10px', fontSize: '0.625rem', fontWeight: 500 }}>
-                            {topic.replies} replies
-                          </span>
+                    {trendingTrades.slice(0, 3).map((trade, index) => (
+                      <div key={trade.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)', cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}>
+                        <div style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)', color: 'white', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, flexShrink: 0 }}>
+                          {index + 1}
                         </div>
-                        <span style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', padding: '0.125rem 0.375rem', borderRadius: '10px', fontSize: '0.625rem', fontWeight: 500, display: 'inline-block' }}>
-                          {topic.category}
+                        <div style={{ width: '32px', height: '32px', borderRadius: '6px', overflow: 'hidden', flexShrink: 0 }}>
+                          <img src={trade.image} alt={trade.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <h4 style={{ color: '#ffffff', fontSize: '0.8rem', fontWeight: 600, margin: '0 0 0.2rem 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{trade.title}</h4>
+                          <p style={{ color: '#9ca3af', fontSize: '0.7rem', margin: 0 }}>by {trade.creator}</p>
+                        </div>
+                        <span style={{ background: 'rgba(34, 197, 94, 0.2)', color: '#22c55e', padding: '0.1rem 0.4rem', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 500 }}>
+                          {trade.trades}+ trades
                         </span>
                       </div>
                     ))}
                   </div>
-                  <button className="btn-secondary" style={{ width: '100%', marginTop: '1rem' }}>Join Discussion</button>
+                  <button className="btn-secondary" style={{ width: '100%', marginTop: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#ffffff', borderRadius: '8px', padding: '0.75rem', fontSize: '0.875rem' }}>View All Trades</button>
+                </section>
+
+                {/* Top Creators Section */}
+                <section style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', flex: '0 0 auto' }}>
+                  <div style={{ marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <h3 style={{ color: '#ffffff', fontSize: '1.1rem', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>🏆 Top Creators</h3>
+                    <p style={{ color: '#9ca3af', margin: 0, fontSize: '0.875rem' }}>Leading by sales and trades</p>
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {topCreators.slice(0, 3).map((creator, index) => (
+                      <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}>
+                        <div style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'white', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, flexShrink: 0 }}>
+                          {index + 1}
+                        </div>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(255, 255, 255, 0.2)' }}>
+                          <img src={`src/assets/icons/${creator.avatar}`} alt={creator.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <h4 style={{ color: '#ffffff', fontSize: '0.8rem', fontWeight: 600, margin: '0 0 0.2rem 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{creator.name}</h4>
+                          <p style={{ color: '#9ca3af', fontSize: '0.7rem', margin: 0 }}>{creator.trades} trades</p>
+                        </div>
+                        <span style={{ background: 'rgba(34, 197, 94, 0.2)', color: '#22c55e', padding: '0.1rem 0.4rem', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 500 }}>
+                          {creator.earnings} earned
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <button className="btn-secondary" style={{ width: '100%', marginTop: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#ffffff', borderRadius: '8px', padding: '0.75rem', fontSize: '0.875rem' }}>View Rankings</button>
+                </section>
+
+                {/* Creator Forums Section */}
+                <section style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)', flex: '1 1 auto', minHeight: 0, overflow: 'hidden' }}>
+                  <div style={{ marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <h3 style={{ color: '#ffffff', fontSize: '1.1rem', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>💬 Creator Forums</h3>
+                    <p style={{ color: '#9ca3af', margin: 0, fontSize: '0.875rem' }}>Community discussions and support</p>
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)', cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}>
+                      <div style={{ fontSize: '1.5rem', width: '2rem', height: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)', flexShrink: 0 }}>
+                        💡
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ color: '#ffffff', fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.25rem 0' }}>Ideas & Feedback</h4>
+                        <p style={{ color: '#9ca3af', fontSize: '0.75rem', margin: 0, lineHeight: 1.3 }}>Share ideas and get feedback</p>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)', cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}>
+                      <div style={{ fontSize: '1.5rem', width: '2rem', height: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)', flexShrink: 0 }}>
+                        🎨
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ color: '#ffffff', fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.25rem 0' }}>Creator Showcase</h4>
+                        <p style={{ color: '#9ca3af', fontSize: '0.75rem', margin: 0, lineHeight: 1.3 }}>Show your work and get discovered</p>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)', cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}>
+                      <div style={{ fontSize: '1.5rem', width: '2rem', height: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '8px', border: '1px solid rgba(168, 85, 247, 0.3)', flexShrink: 0 }}>
+                        ❓
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ color: '#ffffff', fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.25rem 0' }}>Help & Support</h4>
+                        <p style={{ color: '#9ca3af', fontSize: '0.75rem', margin: 0, lineHeight: 1.3 }}>Get help with platform features</p>
+                      </div>
+                    </div>
+                  </div>
+                  <button className="btn-secondary" style={{ width: '100%', marginTop: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#ffffff', borderRadius: '8px', padding: '0.75rem', fontSize: '0.875rem' }}>Browse All Categories</button>
                 </section>
               </div>
             </div>
@@ -654,6 +730,113 @@ const BuyerDashboard = () => {
               <h2>Marketplace</h2>
               <p>Browse and purchase digital products.</p>
             </section>
+          )}
+
+          {activeSection === 'forums' && (
+            <div className="forums-main-content">
+              <section className="dashboard-section">
+                <div className="section-header">
+                  <div>
+                    <h2>Creator Forums</h2>
+                    <p>Connect with fellow creators, share knowledge, and grow together</p>
+                  </div>
+                  <button className="btn-primary">Start New Topic</button>
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '1.5rem', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
+                      <div style={{ fontSize: '2rem', width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)', borderRadius: '12px', flexShrink: 0 }}>
+                        💡
+                      </div>
+                      <div>
+                        <h3 style={{ color: '#ffffff', fontSize: '1.1rem', fontWeight: 600, margin: '0 0 0.5rem 0' }}>Ideas & Feedback</h3>
+                        <p style={{ color: '#9ca3af', fontSize: '0.875rem', margin: 0, lineHeight: 1.4 }}>Share your ideas and get feedback from the community</p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#6b7280', fontSize: '0.875rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                      <span>124 topics</span>
+                      <span>1.2k posts</span>
+                      <span>Last: 2h ago</span>
+                    </div>
+                  </div>
+                  
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '1.5rem', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
+                      <div style={{ fontSize: '2rem', width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)', borderRadius: '12px', flexShrink: 0 }}>
+                        🎨
+                      </div>
+                      <div>
+                        <h3 style={{ color: '#ffffff', fontSize: '1.1rem', fontWeight: 600, margin: '0 0 0.5rem 0' }}>Creator Showcase</h3>
+                        <p style={{ color: '#9ca3af', fontSize: '0.875rem', margin: 0, lineHeight: 1.4 }}>Show off your latest work and get discovered</p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#6b7280', fontSize: '0.875rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                      <span>89 topics</span>
+                      <span>756 posts</span>
+                      <span>Last: 4h ago</span>
+                    </div>
+                  </div>
+                  
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '1.5rem', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
+                      <div style={{ fontSize: '2rem', width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)', borderRadius: '12px', flexShrink: 0 }}>
+                        🤝
+                      </div>
+                      <div>
+                        <h3 style={{ color: '#ffffff', fontSize: '1.1rem', fontWeight: 600, margin: '0 0 0.5rem 0' }}>Collaboration</h3>
+                        <p style={{ color: '#9ca3af', fontSize: '0.875rem', margin: 0, lineHeight: 1.4 }}>Find partners and collaborate on projects</p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#6b7280', fontSize: '0.875rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                      <span>67 topics</span>
+                      <span>423 posts</span>
+                      <span>Last: 1h ago</span>
+                    </div>
+                  </div>
+                  
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '1.5rem', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
+                      <div style={{ fontSize: '2rem', width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)', borderRadius: '12px', flexShrink: 0 }}>
+                        ❓
+                      </div>
+                      <div>
+                        <h3 style={{ color: '#ffffff', fontSize: '1.1rem', fontWeight: 600, margin: '0 0 0.5rem 0' }}>Help & Support</h3>
+                        <p style={{ color: '#9ca3af', fontSize: '0.875rem', margin: 0, lineHeight: 1.4 }}>Get help with platform features and policies</p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#6b7280', fontSize: '0.875rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                      <span>156 topics</span>
+                      <span>892 posts</span>
+                      <span>Last: 30m ago</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <section style={{ marginTop: '2rem' }}>
+                  <h3 style={{ color: '#ffffff', fontSize: '1.25rem', fontWeight: 600, margin: '0 0 1rem 0' }}>Recent Discussions</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {forumTopics.map((topic) => (
+                      <div key={topic.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+                        <div style={{ flex: 1 }}>
+                          <h4 style={{ color: '#ffffff', fontSize: '0.9rem', fontWeight: 500, margin: '0 0 0.5rem 0', lineHeight: 1.3 }}>
+                            {topic.title}
+                          </h4>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.75rem', color: '#9ca3af' }}>
+                            <span>by {topic.author}</span>
+                            <span style={{ background: 'rgba(168, 85, 247, 0.2)', color: '#a855f7', padding: '0.1rem 0.5rem', borderRadius: '10px', fontWeight: 500 }}>{topic.category}</span>
+                            <span>{topic.lastActivity}</span>
+                          </div>
+                        </div>
+                        <div style={{ flexShrink: 0 }}>
+                          <span style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', padding: '0.25rem 0.5rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 500 }}>{topic.replies} replies</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </section>
+            </div>
           )}
 
           {/* Buyer-specific sections using improved dashboard styling */}

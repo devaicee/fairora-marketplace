@@ -6,11 +6,21 @@
   overflow: hidden;
 }
 
+/* Hide scrollbar but allow scrolling */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;             /* Safari and Chrome */
+}
+
 .dashboard-header {
   background: white;
   border-bottom: 2px solid #e5e7eb;
   z-index: 1000;
-  position: sticky;
+  position: fixed;
   top: 0;
 }
 
@@ -134,7 +144,6 @@
 
 .dashboard-sidebar {
   width: 280px;
-  border-right: 2px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   z-index: 1000;
@@ -169,8 +178,6 @@
 }
 
 .nav-item.active {
-  background: #eff6ff;
-  color: #2563eb;
   border-right: 3px solid #2563eb;
 }
 
@@ -211,7 +218,6 @@
 
 .dashboard-main {
   flex: 1;
-  overflow-y: auto;
   padding: 0;
 }
 

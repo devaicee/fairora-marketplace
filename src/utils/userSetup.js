@@ -48,6 +48,10 @@ export const initializeUserProfile = async (userId) => {
         updates.contributionHistory = [];
       }
       
+      if (!userData.firstVisit) {
+        updates.firstVisit = new Date().toISOString();
+      }
+      
       // Update user document if there are missing fields
       if (Object.keys(updates).length > 0) {
         await updateDoc(userRef, updates);
